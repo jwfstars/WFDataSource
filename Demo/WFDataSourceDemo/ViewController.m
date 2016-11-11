@@ -10,8 +10,8 @@
 #import "WFDataSource.h"
 #import "DemoCell.h"
 #import "DemoCell_XIB.h"
-#import "DemoCellModel_XIB.h"
 #import "DemoCellModel.h"
+#import "DemoCellModel_XIB.h"
 
 @interface ViewController ()
 @property (nonatomic, strong) UITableView *tableView;
@@ -68,7 +68,6 @@
                 return 44;
             }
         };
-//        dataSource.doNotUseXib = YES;
         dataSource;
     });
     
@@ -76,7 +75,6 @@
     self.dataSource.tableView = self.tableView;
     
     [self.dataSource reloadWithSectionItems:[self setupSectionModels]];
-    
 //    [self.dataSource reloadWithItems:[self setupModels]];
 }
 
@@ -110,8 +108,7 @@
     WFDataSourceSection *section2 = [WFDataSourceSection new];
     section2.sectionItems = modelArray2;
     section2.sectionTitle = @"Section 2";
-    
-//    return @[section1];
+
     return @[section1, section2];
 }
 
