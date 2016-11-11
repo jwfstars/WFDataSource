@@ -13,6 +13,12 @@
 		9A526C6F1DD5D07900015D03 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A526C6D1DD5D07900015D03 /* Main.storyboard */; };
 		9A526C711DD5D07900015D03 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A526C701DD5D07900015D03 /* Assets.xcassets */; };
 		9A526C741DD5D07900015D03 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A526C721DD5D07900015D03 /* LaunchScreen.storyboard */; };
+		9A526C7E1DD5D57200015D03 /* WFDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526C7D1DD5D57200015D03 /* WFDataSource.m */; };
+		9A526CA11DD6040100015D03 /* DemoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526C971DD6040100015D03 /* DemoCell.m */; };
+		9A526CA21DD6040100015D03 /* DemoCell_XIB.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526C991DD6040100015D03 /* DemoCell_XIB.m */; };
+		9A526CA31DD6040100015D03 /* DemoCell_XIB.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A526C9A1DD6040100015D03 /* DemoCell_XIB.xib */; };
+		9A526CA41DD6040100015D03 /* DemoCellModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526C9D1DD6040100015D03 /* DemoCellModel.m */; };
+		9A526CA51DD6040100015D03 /* DemoCellModel_XIB.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526C9F1DD6040100015D03 /* DemoCellModel_XIB.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +32,17 @@
 		9A526C701DD5D07900015D03 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9A526C731DD5D07900015D03 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9A526C751DD5D07900015D03 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9A526C7C1DD5D57200015D03 /* WFDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WFDataSource.h; sourceTree = "<group>"; };
+		9A526C7D1DD5D57200015D03 /* WFDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WFDataSource.m; sourceTree = "<group>"; };
+		9A526C961DD6040100015D03 /* DemoCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCell.h; sourceTree = "<group>"; };
+		9A526C971DD6040100015D03 /* DemoCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCell.m; sourceTree = "<group>"; };
+		9A526C981DD6040100015D03 /* DemoCell_XIB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCell_XIB.h; sourceTree = "<group>"; };
+		9A526C991DD6040100015D03 /* DemoCell_XIB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCell_XIB.m; sourceTree = "<group>"; };
+		9A526C9A1DD6040100015D03 /* DemoCell_XIB.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DemoCell_XIB.xib; sourceTree = "<group>"; };
+		9A526C9C1DD6040100015D03 /* DemoCellModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCellModel.h; sourceTree = "<group>"; };
+		9A526C9D1DD6040100015D03 /* DemoCellModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCellModel.m; sourceTree = "<group>"; };
+		9A526C9E1DD6040100015D03 /* DemoCellModel_XIB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCellModel_XIB.h; sourceTree = "<group>"; };
+		9A526C9F1DD6040100015D03 /* DemoCellModel_XIB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCellModel_XIB.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +59,7 @@
 		9A526C581DD5D07900015D03 = {
 			isa = PBXGroup;
 			children = (
+				9A526C7B1DD5D57200015D03 /* WFDataSource */,
 				9A526C631DD5D07900015D03 /* WFDataSourceDemo */,
 				9A526C621DD5D07900015D03 /* Products */,
 			);
@@ -58,6 +76,9 @@
 		9A526C631DD5D07900015D03 /* WFDataSourceDemo */ = {
 			isa = PBXGroup;
 			children = (
+				9A526C951DD6040100015D03 /* Cell */,
+				9A526C9B1DD6040100015D03 /* Model */,
+				9A526CA01DD6040100015D03 /* Resources */,
 				9A526C671DD5D07900015D03 /* AppDelegate.h */,
 				9A526C681DD5D07900015D03 /* AppDelegate.m */,
 				9A526C6A1DD5D07900015D03 /* ViewController.h */,
@@ -77,6 +98,45 @@
 				9A526C651DD5D07900015D03 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		9A526C7B1DD5D57200015D03 /* WFDataSource */ = {
+			isa = PBXGroup;
+			children = (
+				9A526C7C1DD5D57200015D03 /* WFDataSource.h */,
+				9A526C7D1DD5D57200015D03 /* WFDataSource.m */,
+			);
+			path = WFDataSource;
+			sourceTree = "<group>";
+		};
+		9A526C951DD6040100015D03 /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				9A526C961DD6040100015D03 /* DemoCell.h */,
+				9A526C971DD6040100015D03 /* DemoCell.m */,
+				9A526C981DD6040100015D03 /* DemoCell_XIB.h */,
+				9A526C991DD6040100015D03 /* DemoCell_XIB.m */,
+				9A526C9A1DD6040100015D03 /* DemoCell_XIB.xib */,
+			);
+			path = Cell;
+			sourceTree = "<group>";
+		};
+		9A526C9B1DD6040100015D03 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				9A526C9C1DD6040100015D03 /* DemoCellModel.h */,
+				9A526C9D1DD6040100015D03 /* DemoCellModel.m */,
+				9A526C9E1DD6040100015D03 /* DemoCellModel_XIB.h */,
+				9A526C9F1DD6040100015D03 /* DemoCellModel_XIB.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		9A526CA01DD6040100015D03 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -138,6 +198,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A526CA31DD6040100015D03 /* DemoCell_XIB.xib in Resources */,
 				9A526C741DD5D07900015D03 /* LaunchScreen.storyboard in Resources */,
 				9A526C711DD5D07900015D03 /* Assets.xcassets in Resources */,
 				9A526C6F1DD5D07900015D03 /* Main.storyboard in Resources */,
@@ -152,7 +213,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A526C6C1DD5D07900015D03 /* ViewController.m in Sources */,
+				9A526CA41DD6040100015D03 /* DemoCellModel.m in Sources */,
+				9A526CA11DD6040100015D03 /* DemoCell.m in Sources */,
 				9A526C691DD5D07900015D03 /* AppDelegate.m in Sources */,
+				9A526C7E1DD5D57200015D03 /* WFDataSource.m in Sources */,
+				9A526CA21DD6040100015D03 /* DemoCell_XIB.m in Sources */,
+				9A526CA51DD6040100015D03 /* DemoCellModel_XIB.m in Sources */,
 				9A526C661DD5D07900015D03 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -310,6 +376,7 @@
 				9A526C7A1DD5D07900015D03 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
