@@ -9,107 +9,110 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-typedef void (^CellConfigureBlock)(id cell, id item, NSIndexPath *indexPath);
-typedef UIView *(^ViewForSectionBlock)(id sectionItem, NSInteger section);
-typedef CGFloat (^HeightForRowBlock)(id item, NSIndexPath *indexPath);
-typedef CGFloat (^HeightForSectionBlock)(id sectionItem, NSInteger section);
+typedef void (^wf_CellConfigureBlock)(id cell, id item, NSIndexPath *indexPath);
+typedef UIView *(^wf_ViewForSectionBlock)(id sectionItem, NSInteger section);
+typedef CGFloat (^wf_HeightForRowBlock)(id item, NSIndexPath *indexPath);
+typedef CGFloat (^wf_HeightForSectionBlock)(id sectionItem, NSInteger section);
+typedef void (^wf_OperationForRowBlock)(id item, NSIndexPath *indexPath);
+typedef BOOL (^wf_CanOperationRowBlock)(id item, NSIndexPath *indexPath);
+typedef void (^wf_CommitEditRowBlock)(id item, UITableViewCellEditingStyle editingStyle, NSIndexPath *indexPath);
+typedef UICollectionReusableView *(^wf_ReusebleViewBlock)(id sectionItem, NSString *kind, NSIndexPath *indexPath);
+typedef UICollectionViewFlowLayout *(^wf_FlowLayoutBlock)();
+typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
+typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
 
-typedef void (^OperationForRowBlock)(id item, NSIndexPath *indexPath);
-typedef BOOL (^CanOperationRowBlock)(id item, NSIndexPath *indexPath);
-typedef void (^CommitEditRowBlock)(id item, UITableViewCellEditingStyle editingStyle, NSIndexPath *indexPath);
+
+
 
 @interface WFDataSource : NSObject
 
-@property (nonatomic, assign) BOOL doNotUseXib; //需要在 setTableView 之前设置
-@property (nonatomic, assign) BOOL doNotDeselecteRow;
+@property (nonatomic,   copy) wf_OperationForRowBlock didSelectCellBlock;
+@property (nonatomic,   copy) wf_ViewForSectionBlock headerViewForSection;
+@property (nonatomic,   copy) wf_ViewForSectionBlock footerViewForSection;
+@property (nonatomic,   copy) wf_HeightForRowBlock heightForRow;
+@property (nonatomic,   copy) wf_HeightForSectionBlock heightForHeaderInSection;
+@property (nonatomic,   copy) wf_HeightForSectionBlock heightForFooterInSection;
 
-@property (nonatomic, strong, readonly) NSArray *itemsArray;
-@property (nonatomic, strong, readonly) NSMutableArray *sectionItems;
-@property (nonatomic,   weak) UITableView *tableView;
-@property (nonatomic,   weak) UICollectionView *collectionView;
+@property (nonatomic,   copy) wf_CellConfigureBlock willDisplayCellBlock;
+@property (nonatomic,   copy) wf_CellConfigureBlock didEndDisplayCellBlock;
+@property (nonatomic, strong) wf_CanOperationRowBlock canEditForRow;
 
-@property (nonatomic,   copy) OperationForRowBlock didSelectCellBlock;
-//section header & footer
-@property (nonatomic,   copy) ViewForSectionBlock headerViewForSection;
-@property (nonatomic,   copy) ViewForSectionBlock footerViewForSection;
-@property (nonatomic,   copy) HeightForRowBlock heightForRow;
-@property (nonatomic,   copy) HeightForSectionBlock heightForHeaderInSection;
-@property (nonatomic,   copy) HeightForSectionBlock heightForFooterInSection;
+@property (nonatomic, strong) wf_CommitEditRowBlock preCommitEditRow;
+@property (nonatomic, strong) wf_CommitEditRowBlock commitEditRow;
+@property (nonatomic, strong) wf_CommitEditRowBlock postCommitEditRow;
 
-@property (nonatomic,   copy) CellConfigureBlock willDisplayCellBlock;
-@property (nonatomic,   copy) CellConfigureBlock didEndDisplayCellBlock;
+@property (nonatomic, strong) wf_ReusebleViewBlock reusableViewForSection;
+@property (nonatomic,   copy) wf_FlowLayoutBlock collectionViewLayout;
+@property (nonatomic,   copy) wf_FlowLayoutSizeBlock collectionViewLayoutSize;
+@property (nonatomic,   copy) wf_FlowLayoutSectionSizeBlock collectionViewFooterSize;
+@property (nonatomic,   copy) wf_FlowLayoutSectionSizeBlock collectionViewHeaderSize;
 
-@property (nonatomic, strong) CanOperationRowBlock canEditForRow;
-//删除Row数据之前执行
-@property (nonatomic, strong) CommitEditRowBlock preCommitEditRow;
-//删除Row数据 默认是 [self removeCell:]，如果实现了这个block则覆盖默认行为
-@property (nonatomic, strong) CommitEditRowBlock commitEditRow;
-//删除Row之后执行
-@property (nonatomic, strong) CommitEditRowBlock postCommitEditRow;
-
-@property (nonatomic, strong) UICollectionReusableView * (^reusableViewForSection)(id sectionItem, NSString *kind, NSIndexPath *indexPath);
-
-//Display
-
-
-//CollectionView layout
-@property (nonatomic,   copy) UICollectionViewFlowLayout * (^collectionViewLayout)();
-@property (nonatomic,   copy) CGSize (^collectionViewLayoutSize)(id item, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
-@property (nonatomic,   copy) CGSize (^collectionViewFooterSize)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
-@property (nonatomic,   copy) CGSize (^collectionViewHeaderSize)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
-//自定义Section title属性和子数组属性
-@property (nonatomic,   copy) NSDictionary *(^customSectionProperties)();
-
-#define SECTION_CLASS_NAME @"sectionClassItems"
-#define SECTION_SUBARRAY_NAME @"sectionSubItems"
-#define SECTION_TITLE_NAME @"sectionTitle"
-
-//scroll view
 @property (nonatomic,   copy) void(^didScrollBlock)(UIScrollView *scrollView);
 @property (nonatomic,   copy) void(^willBeginDraggingBlock)(UIScrollView *scrollView);
 @property (nonatomic,   copy) void(^didEndDraggingBlock)(UIScrollView *scrollView, BOOL willDecelerate, NSIndexPath *currentIndexPath);
 @property (nonatomic,   copy) void(^didEndDeceleratingBlock)(UIScrollView *scrollView, NSIndexPath *currentIndexPath);
 @property (nonatomic,   copy) void(^WillEndDraggingBlock)(UIScrollView *scrollView, CGPoint velocity, CGPoint *targetContentOffset);
 
+@property (nonatomic, assign) BOOL doNotDeselecteRow;
 
-//For single section
-- (instancetype)initWithItems:(NSArray *)items cellClass:(NSString *)cellClass configureCellBlock:(CellConfigureBlock)configureCellBlock;
+@property (nonatomic, strong, readonly) NSArray *items;
 
-//For mutiply sections
-- (instancetype)initWithSectionItems:(NSArray *)sectionItems cellClass:(NSString *)cellClass configureCellBlock:(CellConfigureBlock)configureCellBlock;
+@property (nonatomic, strong, readonly) NSMutableArray *sectionItems;
 
-- (instancetype)initWithModelCellMap:(NSDictionary *)map configureCellBlock:(CellConfigureBlock)configureCellBlock;
+@property (nonatomic,   weak) UITableView *tableView;
 
-- (id)itemAtIndexPath:(NSIndexPath *)indexPath;
+@property (nonatomic,   weak) UICollectionView *collectionView;
 
-- (instancetype)initWithModelCellMap:(NSDictionary *)map sectionItems:(NSArray *)sectionItems configureCellBlock:(CellConfigureBlock)configureCellBlock;
 
-//Item
+
+//init
+- (instancetype)initWithModelCellMap:(NSDictionary *)map cellConfigBlock:(wf_CellConfigureBlock)block;
+
+
+//Reload
 - (void)reloadWithItems:(NSArray *)items;
-- (void)reloadWithItems:(NSArray *)items animated:(BOOL)animated;
-- (void)addNewItems:(NSArray *)newItems;
-- (void)insertNewItems:(NSArray *)newItems atIndexPath:(NSIndexPath *)indexPath;
-- (void)insertNewItems:(NSArray *)newItems atIndex:(NSInteger)index;
-- (void)reloadItemAtIndexPath:(NSIndexPath *)indexPath;
-- (void)removeCellAtIndexPath:(NSIndexPath *)indexPath;
 
-//Section
+- (void)reloadWithItems:(NSArray *)items animated:(BOOL)animated;
+
 - (void)reloadWithSectionItems:(NSArray *)sectionItems;
+
 - (void)reloadWithSectionItems:(NSArray *)sectionItems animated:(BOOL)animated;
-- (void)addNewSectionItems:(NSArray *)newSectionItems;
-- (void)insertNewSectionItems:(NSArray *)sectionItems atSectionIndex:(NSInteger)sectionIndex;
+
+- (void)reloadItemAtIndexPath:(NSIndexPath *)indexPath;
 
 - (void)reloadSectionAtIndex:(NSInteger)index;
+
+- (void)reloadSectionAtIndex:(NSInteger)index withRowAnimation:(UITableViewRowAnimation)animation;
 
 - (void)reloadSectionsWithRowAnimation:(UITableViewRowAnimation)animation;
 
 
+//Insert
+- (void)addNewItems:(NSArray *)newItems;
+
+- (void)insertNewItems:(NSArray *)newItems atIndexPath:(NSIndexPath *)indexPath;
+
+- (void)addNewSectionItems:(NSArray *)newSectionItems;
+
+- (void)insertNewSectionItems:(NSArray *)sectionItems atIndex:(NSInteger)index;
+
+- (void)insertNewSectionItems:(NSArray *)sectionItems atIndexPath:(NSIndexPath *)indexPath;
+
+
+//Remove
+- (void)removeCellAtIndexPath:(NSIndexPath *)indexPath;
+
+- (void)removeCellAtIndexPath:(NSIndexPath *)indexPath animation:(UITableViewRowAnimation)animation;
+
+
+//Helper
 - (void)scrollToEndWithDelay:(NSTimeInterval)delay animated:(BOOL)animated;
 
+- (id)itemAtIndexPath:(NSIndexPath *)indexPath;
 @end
 
 
-@interface ArrayDSDefaultSection : NSObject
+@interface WFDataSourceSection : NSObject
 @property (nonatomic,   copy) NSString *sectionTitle;
 @property (nonatomic, strong) NSMutableArray *sectionItems;
 @end

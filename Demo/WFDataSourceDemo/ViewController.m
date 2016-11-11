@@ -37,11 +37,11 @@
                                        @"DemoCellModel":@"DemoCell",
                                        @"DemoCellModel_XIB":@"DemoCell_XIB",
                                        };
-        WFDataSource *dataSource = [[WFDataSource alloc] initWithModelCellMap:modelCellMap configureCellBlock:^(id cell, id item, NSIndexPath *indexPath) {
+        WFDataSource *dataSource = [[WFDataSource alloc] initWithModelCellMap:modelCellMap cellConfigBlock:^(id cell, id item, NSIndexPath *indexPath) {
             [cell configCellWithItem:item];
         }];
         dataSource.headerViewForSection = ^ UIView *(id sectionItem, NSInteger section){
-            ArrayDSDefaultSection *sectionData = (ArrayDSDefaultSection *)sectionItem;
+            WFDataSourceSection *sectionData = (WFDataSourceSection *)sectionItem;
             if (sectionData.sectionTitle) {
                 UIView *bg = [UIView new];
                 bg.frame = CGRectMake(0, 0, 0, 30);
@@ -68,7 +68,7 @@
                 return 44;
             }
         };
-        dataSource.doNotUseXib = YES;
+//        dataSource.doNotUseXib = YES;
         dataSource;
     });
     
@@ -103,15 +103,15 @@
         [modelArray2 addObject:model];
     }
     
-    ArrayDSDefaultSection *section1 = [ArrayDSDefaultSection new];
+    WFDataSourceSection *section1 = [WFDataSourceSection new];
     section1.sectionItems = modelArray1;
     section1.sectionTitle = @"Section 1";
     
-    ArrayDSDefaultSection *section2 = [ArrayDSDefaultSection new];
+    WFDataSourceSection *section2 = [WFDataSourceSection new];
     section2.sectionItems = modelArray2;
     section2.sectionTitle = @"Section 2";
     
-    return @[section1];
+//    return @[section1];
     return @[section1, section2];
 }
 

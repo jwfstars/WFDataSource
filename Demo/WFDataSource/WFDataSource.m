@@ -8,12 +8,16 @@
 
 #import "WFDataSource.h"
 
+#define SECTION_CLASS_NAME @"sectionClassItems"
+#define SECTION_SUBARRAY_NAME @"sectionSubItems"
+#define SECTION_TITLE_NAME @"sectionTitle"
+
 @interface WFDataSource() <UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDelegate,UICollectionViewDelegateFlowLayout>
 
-@property (nonatomic, copy) CellConfigureBlock configureCellBlock;
-@property (nonatomic, copy) NSString *cellClassString;
+@property (nonatomic, copy) wf_CellConfigureBlock configureCellBlock;
 @property (nonatomic, strong) NSMutableDictionary *modelCellMap;
-@property (nonatomic,   weak) UIView *collectionHeaderView;
+
+@property (nonatomic,   copy) NSDictionary *(^customSectionProperties)();
 @end
 
 @implementation WFDataSource
@@ -25,156 +29,40 @@
     return nil;
 }
 
-- (NSMutableDictionary *)modelCellMap
+#pragma mark - Init
+
+- (instancetype)initWithModelCellMap:(NSDictionary *)map cellConfigBlock:(wf_CellConfigureBlock)block
 {
-    if (_modelCellMap == nil) {
-        _modelCellMap = [[NSMutableDictionary alloc]init];
-    }
-    return _modelCellMap;
+    return [self initWithModelCellMap:map items:nil cellConfigBlock:block];
 }
 
-- (NSMutableArray *)sectionItems
+- (instancetype)initWithModelCellMap:(NSDictionary *)map items:(NSArray *)items cellConfigBlock:(wf_CellConfigureBlock)block
 {
-    if (_sectionItems == nil) {
-        _sectionItems = [[NSMutableArray alloc]init];
-    }
-    return _sectionItems;
-}
-
-- (NSArray *)itemsArray
-{
-    return [[_sectionItems.firstObject valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] copy];
-}
-
-- (void)setTableView:(UITableView *)tableView
-{
-    _tableView = tableView;
-    tableView.dataSource = self;
-    tableView.delegate = self;
-    if (!self.doNotUseXib) {
-        if (self.cellClassString) {
-            [tableView registerNib:[UINib nibWithNibName:self.cellClassString bundle:nil] forCellReuseIdentifier:self.cellClassString];
-        }
-        if (self.modelCellMap.count) {
-            [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
-                [tableView registerNib:[UINib nibWithNibName:cellClassString bundle:nil] forCellReuseIdentifier:cellClassString];
-            }];
-        }
-    }
-    [tableView reloadData];
-}
-
-
-- (void)setCollectionView:(UICollectionView *)collectionView
-{
-    [self.modelCellMap removeObjectsForKeys:@[@"VGTEmpty",@"VGTError"]];
-    _collectionView = collectionView;
-    collectionView.delegate = self;
-    collectionView.dataSource = self;
-    if (self.doNotUseXib) {
-        if (self.cellClassString) {
-            [collectionView registerClass:NSClassFromString(self.cellClassString) forCellWithReuseIdentifier:self.cellClassString];
-        }
-        if (self.modelCellMap.count) {
-            [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
-                [collectionView registerClass:NSClassFromString(cellClassString) forCellWithReuseIdentifier:cellClassString];
-            }];
-        }
-    }else {
-        if (self.cellClassString) {
-            [collectionView registerNib:[UINib nibWithNibName:self.cellClassString bundle:nil] forCellWithReuseIdentifier:self.cellClassString];
-        }
-        if (self.modelCellMap.count) {
-            [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
-                [collectionView registerNib:[UINib nibWithNibName:cellClassString bundle:nil] forCellWithReuseIdentifier:cellClassString];
-            }];
-        }
-    }
-    
-    [collectionView reloadData];
-}
-
-
-//For single section
-- (instancetype)initWithItems:(NSArray *)items cellClass:(NSString *)cellClass configureCellBlock:(CellConfigureBlock)configureCellBlock
-{
-    ArrayDSDefaultSection *section = [ArrayDSDefaultSection new];
+    WFDataSourceSection *section = [WFDataSourceSection new];
     section.sectionTitle = nil;
     section.sectionItems = [items mutableCopy];
-    return [self initWithSectionItems:@[section] cellClass:cellClass configureCellBlock:configureCellBlock];
+    return [self initWithModelCellMap:map sectionItems:@[section] cellConfigBlock:block];
 }
 
-//For mutiply sections
-- (instancetype)initWithSectionItems:(NSArray *)sectionItems cellClass:(NSString *)cellClass configureCellBlock:(CellConfigureBlock)configureCellBlock
+- (instancetype)initWithModelCellMap:(NSDictionary *)map sectionItems:(NSArray *)sectionItems cellConfigBlock:(wf_CellConfigureBlock)block
 {
     self = [super init];
     if (self) {
-        self.cellClassString = cellClass;
-        
-        [self.sectionItems removeAllObjects];
         [self.sectionItems addObjectsFromArray:sectionItems];
-        
-        //为sectionItems中的每一个模型的Class关联对应的Cell
-        NSMutableArray *subItems = [sectionItems.firstObject valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
-        NSDictionary *dict = [self classDictOfSectionSubItems:subItems cellClass:self.cellClassString];
-        return [self initWithModelCellMap:dict?:@{} sectionItems:sectionItems configureCellBlock:configureCellBlock];
-    }
-    return self;
-}
-
-
-- (NSDictionary *)classDictOfSectionSubItems:(NSArray *)subItems cellClass:(NSString *)cellClassString
-{
-    if (!subItems.count) return nil;
-    if (subItems.count) {
-        NSMutableDictionary *dictM = [NSMutableDictionary dictionary];
-        [subItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            Class itemClass = [obj class];
-            NSString *classString = NSStringFromClass(itemClass);
-            if (![classString isEqualToString:@"VGTError"] && ![classString isEqualToString:@"VGTEmpty"]) {
-                [dictM setObject:cellClassString forKey:classString];
-            }
-        }];
-        if (dictM.count) {
-            return [dictM copy];
-        }else {
-            return nil;
-        }
-    }else {
-        return nil;
-    }
-}
-
-- (instancetype)initWithModelCellMap:(NSDictionary *)map items:(NSArray *)items configureCellBlock:(CellConfigureBlock)configureCellBlock
-{
-    ArrayDSDefaultSection *section = [ArrayDSDefaultSection new];
-    section.sectionTitle = nil;
-    section.sectionItems = [items mutableCopy];
-    return [self initWithModelCellMap:map sectionItems:@[section] configureCellBlock:configureCellBlock];
-}
-
-//For Mutyple kinds of Cells - Universal
-- (instancetype)initWithModelCellMap:(NSDictionary *)map sectionItems:(NSArray *)sectionItems configureCellBlock:(CellConfigureBlock)configureCellBlock
-{
-    self = [super init];
-    if (self) {
-        [self.sectionItems removeAllObjects];
-        [self.sectionItems addObjectsFromArray:sectionItems];
-        [self.modelCellMap removeAllObjects];
-        
-        NSDictionary *empty = @{@"VGTEmpty": @"VGTEmptyCell",
-                                @"VGTError": @"VGTErrorCell"};
         [self.modelCellMap addEntriesFromDictionary:map];
-        [self.modelCellMap addEntriesFromDictionary:empty];
-        self.configureCellBlock = [configureCellBlock copy];
+        self.configureCellBlock = [block copy];
     }
     return self;
 }
 
-- (instancetype)initWithModelCellMap:(NSDictionary *)map configureCellBlock:(CellConfigureBlock)configureCellBlock
-{
-    return [self initWithModelCellMap:map items:nil configureCellBlock:configureCellBlock];
-}
+
+
+
+
+
+
+
+#pragma mark - Reload
 
 - (void)reloadWithItems:(NSArray *)items
 {
@@ -183,29 +71,21 @@
 
 - (void)reloadWithItems:(NSArray *)items animated:(BOOL)animated
 {
-    ArrayDSDefaultSection *section = [ArrayDSDefaultSection new];
+    WFDataSourceSection *section = [WFDataSourceSection new];
     section.sectionTitle = nil;
     section.sectionItems = [NSMutableArray arrayWithArray:items];
     [self reloadWithSectionItems:@[section] animated:animated];
+}
+
+- (void)reloadWithSectionItems:(NSArray *)sectionItems
+{
+    [self reloadWithSectionItems:sectionItems animated:NO];
 }
 
 - (void)reloadWithSectionItems:(NSArray *)sectionItems animated:(BOOL)animated
 {
     [self.sectionItems removeAllObjects];
     [self.sectionItems addObjectsFromArray:sectionItems];
-    
-    if (self.cellClassString) {
-        NSMutableArray *subItems = [sectionItems.firstObject valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
-        NSDictionary *dict = [self classDictOfSectionSubItems:subItems cellClass:self.cellClassString];
-        if (dict) {
-            [self.modelCellMap addEntriesFromDictionary:dict];
-            if (!self.doNotUseXib) {
-                [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
-                    [_tableView registerNib:[UINib nibWithNibName:cellClassString bundle:nil] forCellReuseIdentifier:cellClassString];
-                }];
-            }
-        }
-    }
     
     if (!animated) {
         [self.tableView reloadData];
@@ -220,150 +100,154 @@
     }
 }
 
-- (void)reloadWithSectionItems:(NSArray *)sectionItems
-{
-    [self reloadWithSectionItems:sectionItems animated:NO];
-}
-
-
 - (void)reloadItemAtIndexPath:(NSIndexPath *)indexPath {
     [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
     [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
-- (id)itemAtIndexPath:(NSIndexPath *)indexPath
+- (void)reloadSectionAtIndex:(NSInteger)index
 {
-    if (self.sectionItems.count) {
-        id sectionItem = [self.sectionItems objectAtIndex:indexPath.section];
-        NSMutableArray *sectionSubArray = [sectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
-        return sectionSubArray[indexPath.row];
-    }else {
-        return nil;
-    }
+    [self reloadSectionAtIndex:index withRowAnimation:UITableViewRowAnimationAutomatic];
 }
+
+- (void)reloadSectionAtIndex:(NSInteger)index withRowAnimation:(UITableViewRowAnimation)animation
+{
+    NSRange range = NSMakeRange(index, 1);
+    NSIndexSet *sectionToReload = [NSIndexSet indexSetWithIndexesInRange:range];
+    [self.collectionView performBatchUpdates:^{
+        [self.collectionView reloadSections:sectionToReload];
+    } completion:nil];
+    [self.tableView reloadSections:sectionToReload withRowAnimation:animation];
+}
+
+- (void)reloadSectionsWithRowAnimation:(UITableViewRowAnimation)animation
+{
+    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+    NSInteger count = self.sectionItems.count == 0?1:self.sectionItems.count;
+    for (NSInteger startIndex = 0; startIndex < count; startIndex ++) {
+        [indexSet addIndex:startIndex];
+    }
+    [self.tableView reloadSections:indexSet withRowAnimation:animation];
+    [self.collectionView reloadSections:indexSet];
+}
+
+
+
+
+
+#pragma mark - Insert
 
 - (void)addNewItems:(NSArray *)newItems
 {
     if (!self.sectionItems.count) {
         [self reloadWithItems:newItems];
     }else {
-        ArrayDSDefaultSection *secion = self.sectionItems.firstObject;
+        WFDataSourceSection *secion = self.sectionItems.firstObject;
         NSLog(@"count = %@",@(secion.sectionItems.count));
         [self insertNewItems:newItems atIndexPath:[NSIndexPath indexPathForItem:secion.sectionItems.count inSection:0]];
     }
 }
-- (void)insertNewItems:(NSArray *)newItems atIndex:(NSInteger)index
-{
-    [self insertNewItems:newItems atIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
-}
+
 - (void)insertNewItems:(NSArray *)newItems atIndexPath:(NSIndexPath *)indexPath
 {
-    [self insertNewSectionItemsOrItems:newItems atIndexPath:indexPath type:0];
+    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+    for (NSInteger startIndex = indexPath.item; startIndex < indexPath.item + newItems.count; startIndex ++) {
+        [indexSet addIndex:startIndex];
+    }
+    NSMutableArray *sectionitem = [self.sectionItems objectAtIndex:indexPath.section];
+    [((NSMutableArray *)[sectionitem mutableArrayValueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] ) insertObjects:newItems atIndexes:indexSet];
+    NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:newItems.count];
+    [newItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSIndexPath *indexPathToAdd = [NSIndexPath indexPathForItem:indexPath.item + idx inSection:indexPath.section];
+        [indexPaths addObject:indexPathToAdd];
+    }];
+    [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+    
+    [self.collectionView performBatchUpdates:^{
+        [self.collectionView insertItemsAtIndexPaths:indexPaths];
+    } completion:nil];
 }
 
 - (void)addNewSectionItems:(NSArray *)newSectionItems
 {
-    [self insertNewSectionItems:newSectionItems atSectionIndex:self.sectionItems.count];
+    [self insertNewSectionItems:newSectionItems atIndex:self.sectionItems.count];
 }
 
-- (void)insertNewSectionItems:(NSArray *)sectionItems atSectionIndex:(NSInteger)sectionIndex
+- (void)insertNewSectionItems:(NSArray *)sectionItems atIndex:(NSInteger)index
 {
-    [self insertNewSectionItemsOrItems:sectionItems atIndexPath:[NSIndexPath indexPathForItem:0 inSection:sectionIndex] type:1];
+    [self insertNewSectionItems:sectionItems atIndexPath:[NSIndexPath indexPathForItem:0 inSection:index]];
 }
 
-
-- (void)insertNewSectionItemsOrItems:(NSArray *)sectionItemsOrItems atIndexPath:(NSIndexPath *)indexPath type:(NSInteger)type
+- (void)insertNewSectionItems:(NSArray *)sectionItems atIndexPath:(NSIndexPath *)indexPath
 {
-    if (self.cellClassString) {
-        if (type == 0) {
-            if (sectionItemsOrItems.count) {
-                NSDictionary *dict = [self classDictOfSectionSubItems:sectionItemsOrItems cellClass:self.cellClassString];
-                [self.modelCellMap addEntriesFromDictionary:dict];
-            }
-        }else {
-            //type == 1
-            NSMutableArray *subItems = [sectionItemsOrItems.firstObject valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
-            NSDictionary *dict = [self classDictOfSectionSubItems:subItems cellClass:self.cellClassString];
-            if (dict) {
-                [self.modelCellMap addEntriesFromDictionary:dict];
-            }
-        }
-        if (!self.doNotUseXib) {
-            [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
-                [_tableView registerNib:[UINib nibWithNibName:cellClassString bundle:nil] forCellReuseIdentifier:cellClassString];
-            }];
-        }
+    NSMutableArray *sectionDatasM = [NSMutableArray arrayWithArray:sectionItems];
+    /*处理重复情况*/
+    id lastSectionItem = [self.sectionItems objectAtIndex:indexPath.section - 1];
+    id newFirstSectionItem = sectionItems.firstObject;
+    NSString *title = [self sectionPropertiesMap][SECTION_TITLE_NAME];
+    if ([[lastSectionItem valueForKey:title] isEqual:[newFirstSectionItem valueForKey:title]]) {
+        [self insertNewItems:[newFirstSectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] atIndexPath:[NSIndexPath indexPathForItem:[[lastSectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] count] inSection:indexPath.section-1]];
+        [sectionDatasM removeObject:newFirstSectionItem];
     }
-
-    NSMutableArray *sectionDatasM = [NSMutableArray arrayWithArray:sectionItemsOrItems];
-    if (type == 0) {
-        NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-        for (NSInteger startIndex = indexPath.item; startIndex < indexPath.item + sectionItemsOrItems.count; startIndex ++) {
-            [indexSet addIndex:startIndex];
-        }
-        NSMutableArray *sectionitem = [self.sectionItems objectAtIndex:indexPath.section];
-        [((NSMutableArray *)[sectionitem mutableArrayValueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] ) insertObjects:sectionItemsOrItems atIndexes:indexSet];
-        NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:sectionItemsOrItems.count];
-        [sectionItemsOrItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            NSIndexPath *indexPathToAdd = [NSIndexPath indexPathForItem:indexPath.item + idx inSection:indexPath.section];
-            [indexPaths addObject:indexPathToAdd];
-        }];
-        [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
-        
-        [self.collectionView performBatchUpdates:^{
-            [self.collectionView insertItemsAtIndexPaths:indexPaths];
-        } completion:nil];
-    }else {
-        /*处理重复情况*/
-        id lastSectionItem = [self.sectionItems objectAtIndex:indexPath.section - 1];
-        id newFirstSectionItem = sectionItemsOrItems.firstObject;
-        NSString *title = [self sectionPropertiesMap][SECTION_TITLE_NAME];
-        if ([[lastSectionItem valueForKey:title] isEqual:[newFirstSectionItem valueForKey:title]]) {
-            [self insertNewItems:[newFirstSectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] atIndexPath:[NSIndexPath indexPathForItem:[[lastSectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] count] inSection:indexPath.section-1]];
-            [sectionDatasM removeObject:newFirstSectionItem];
-        }
-        /***********/
-        
-        NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-        for (NSInteger startIndex = indexPath.section; startIndex < indexPath.section + sectionDatasM.count; startIndex ++) {
-            [indexSet addIndex:startIndex];
-        }
-        [self.tableView beginUpdates];
-        [self.sectionItems insertObjects:sectionDatasM atIndexes:indexSet];
-        [self.tableView insertSections:indexSet withRowAnimation:UITableViewRowAnimationFade];
-        [self.tableView endUpdates];
-        
-        [self.collectionView performBatchUpdates:^{
-            [self.collectionView insertSections:indexSet];
-        } completion:nil];
+    /***********/
+    
+    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+    for (NSInteger startIndex = indexPath.section; startIndex < indexPath.section + sectionDatasM.count; startIndex ++) {
+        [indexSet addIndex:startIndex];
     }
+    [self.tableView beginUpdates];
+    [self.sectionItems insertObjects:sectionDatasM atIndexes:indexSet];
+    [self.tableView insertSections:indexSet withRowAnimation:UITableViewRowAnimationFade];
+    [self.tableView endUpdates];
+    
+    [self.collectionView performBatchUpdates:^{
+        [self.collectionView insertSections:indexSet];
+    } completion:nil];
 }
-
-
 
 - (NSDictionary *)sectionPropertiesMap
 {
     if (self.customSectionProperties) {
         return self.customSectionProperties();
     }else {
-        return @{SECTION_CLASS_NAME:@"ArrayDSDefaultSection", SECTION_TITLE_NAME:@"sectionTitle",SECTION_SUBARRAY_NAME:@"sectionItems"};
+        return @{SECTION_CLASS_NAME:@"WFDataSourceSection", SECTION_TITLE_NAME:@"sectionTitle",SECTION_SUBARRAY_NAME:@"sectionItems"};
     }
 }
 
 
 
+#pragma mark - Remove (TableView)
+
+- (void)removeCellAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self removeCellAtIndexPath:indexPath animation:UITableViewRowAnimationFade];
+}
+
+- (void)removeCellAtIndexPath:(NSIndexPath *)indexPath animation:(UITableViewRowAnimation)animation
+{
+    if (indexPath == nil) {
+        return;
+    }
+    id sectionItem = [self.sectionItems objectAtIndex:indexPath.section];
+    NSMutableArray *sectionSubArray = [sectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
+    id item = sectionSubArray[indexPath.row];
+    [sectionSubArray removeObject:item];
+    
+    [self.tableView beginUpdates];
+    [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:animation];
+    [self.tableView endUpdates];
+}
 
 
 
 
 
 
-#pragma mark - UITableViewDataSource
+#pragma mark - UITableView Data Source
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     return self.sectionItems.count;
 }
-
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
@@ -372,6 +256,7 @@
     return sectionSubArray.count;
 }
 
+#pragma mark  UITableView Cell
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -387,26 +272,20 @@
     }else {
         cellIdentifier = @"UITableViewCell";
     }
-    Class cellClass = NSClassFromString(cellIdentifier);
     
-    UITableViewCell *cell;
-    if (self.doNotUseXib) {
-        cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
+    if (!cell) {
+        Class cellClass = NSClassFromString(cellIdentifier);
+        cell = [[cellClass alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
         if (!cell) {
-            if (cellClass) {
-                cell = [[cellClass alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
-            }else {
-                cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
-            }
+            @throw [NSException exceptionWithName:@"cellIdentifier 异常" reason:cellIdentifier userInfo:self.modelCellMap];
         }
-    }else {
-        cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
     }
-    
     self.configureCellBlock(cell, item, indexPath);
     return cell;
 }
 
+#pragma mark  UITableView Height
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -417,15 +296,12 @@
     return self.tableView.rowHeight;
 }
 
-- (CGFloat)tableViewRealHeight {
-    return _tableView.frame.size.height - self.tableView.contentInset.top;
-}
-
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     if (self.heightForHeaderInSection) {
         return self.heightForHeaderInSection(self.sectionItems[section], section);
     }
+    
     if (self.headerViewForSection) {
         UIView *headerView = self.headerViewForSection(self.sectionItems[section], section);
         CGFloat height = CGRectGetHeight(headerView.frame);
@@ -435,21 +311,13 @@
     }
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-{
-    if (self.headerViewForSection) {
-        return self.headerViewForSection(self.sectionItems[section], section);
-    }
-    return nil;
-}
-
-
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
+    if (self.heightForFooterInSection) {
+        return self.heightForFooterInSection(self.sectionItems[section], section);
+    }
+    
     if (self.footerViewForSection) {
-        if (self.heightForFooterInSection) {
-            return self.heightForFooterInSection(self.sectionItems[section], section);
-        }
         UIView *headerView = self.footerViewForSection(self.sectionItems[section], section);
         CGFloat height = CGRectGetHeight(headerView.frame);
         return height;
@@ -458,6 +326,15 @@
     }
 }
 
+#pragma mark  UITableView Section Header/Footer View
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    if (self.headerViewForSection) {
+        return self.headerViewForSection(self.sectionItems[section], section);
+    }
+    return nil;
+}
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
@@ -467,6 +344,7 @@
     return nil;
 }
 
+#pragma mark - UITableView Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -477,27 +355,6 @@
     if (self.didSelectCellBlock) {
         self.didSelectCellBlock(item, indexPath);
     }
-}
-
-- (void)reloadSectionAtIndex:(NSInteger)index
-{
-    NSRange range = NSMakeRange(index, 1);
-    NSIndexSet *sectionToReload = [NSIndexSet indexSetWithIndexesInRange:range];
-    [self.collectionView performBatchUpdates:^{
-        [self.collectionView reloadSections:sectionToReload];
-    } completion:nil];
-    [self.tableView reloadSections:sectionToReload withRowAnimation:UITableViewRowAnimationAutomatic];
-}
-
-- (void)reloadSectionsWithRowAnimation:(UITableViewRowAnimation)animation
-{
-    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-    NSInteger count = self.sectionItems.count == 0?1:self.sectionItems.count;
-    for (NSInteger startIndex = 0; startIndex < count; startIndex ++) {
-        [indexSet addIndex:startIndex];
-    }
-    [self.tableView reloadSections:indexSet withRowAnimation:animation];
-    [self.collectionView reloadSections:indexSet];
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -517,7 +374,8 @@
     }
 }
 
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
     if (self.canEditForRow) {
         id item = [self itemAtIndexPath:indexPath];
         return self.canEditForRow(item, indexPath);
@@ -525,36 +383,14 @@
     return self.tableView.editing;
 }
 
-/** 删除一个单元格  ui和 数据上 */
-- (void)removeCellAtIndexPath:(NSIndexPath *)indexPath {
-    [self removeCellAtIndexPath:indexPath animation:UITableViewRowAnimationFade];
-}
-
-/** 删除一个单元格  ui和 数据上 自定义动画 */
-- (void)removeCellAtIndexPath:(NSIndexPath *)indexPath animation:(UITableViewRowAnimation)animation {
-    if (indexPath == nil) {
-        return;
-    }
-    id sectionItem = [self.sectionItems objectAtIndex:indexPath.section];
-    NSMutableArray *sectionSubArray = [sectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
-    id item = sectionSubArray[indexPath.row];
-    [sectionSubArray removeObject:item];
-    
-    [self.tableView beginUpdates];
-    [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:animation];
-    [self.tableView endUpdates];
-}
 
 
 
 
 
 
+#pragma mark - UICollection Data Source
 
-
-
-
-#pragma mark - UICollectionDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
     return self.sectionItems.count;
@@ -582,15 +418,13 @@
         cellIdentifier = @"UICollectionViewCell";
     }
     
-    if (!cellIdentifier) {
-        return nil;
-    }
-    
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     self.configureCellBlock(cell, item, indexPath);
     return cell;
 }
 
+
+#pragma mark - UICollection Delegate
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -599,7 +433,6 @@
         self.didSelectCellBlock(item, indexPath);
     }
 }
-
 
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     if (self.reusableViewForSection) {
@@ -611,8 +444,6 @@
     }
 }
 
-
-#pragma mark - UICollectionViewDelegate
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     if (self.collectionViewLayoutSize) {
         id item = [self itemAtIndexPath:indexPath];
@@ -690,14 +521,17 @@
     }
 }
 
-#pragma mark - ScrollView
+
+
+
+#pragma mark - ScrollView Delegate
+
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (self.didScrollBlock) {
         self.didScrollBlock(scrollView);
     }
 }
-
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
@@ -706,15 +540,14 @@
     }
 }
 
-
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
     if (decelerate) {
         NSIndexPath *currentIndexPath;
         if (self.collectionView) {
-            currentIndexPath = [[self.collectionView indexPathsForVisibleItems]firstObject];
+            currentIndexPath = [[self.collectionView indexPathsForVisibleItems] firstObject];
         }else {
-            currentIndexPath = [[self.tableView indexPathsForVisibleRows]firstObject];
+            currentIndexPath = [[self.tableView indexPathsForVisibleRows] firstObject];
         }
         if (self.didEndDraggingBlock) {
             self.didEndDraggingBlock(scrollView, decelerate, currentIndexPath);
@@ -725,7 +558,6 @@
         }
     }
 }
-
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
@@ -740,7 +572,6 @@
     }
 }
 
-
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
     if (self.WillEndDraggingBlock) {
@@ -749,16 +580,21 @@
 }
 
 
+
+
+
+#pragma mark - Helper
+
 - (void)scrollToEndWithDelay:(NSTimeInterval)delay animated:(BOOL)animated
 {
-    if (self.itemsArray.count||self.sectionItems.count) {
+    if (self.items.count||self.sectionItems.count) {
         NSIndexPath *indexPath;
         if (self.sectionItems.count) {
             id lastSectionItem = [self.sectionItems objectAtIndex:self.sectionItems.count-1];
             NSMutableArray *sectionSubArray = [lastSectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
             indexPath = [NSIndexPath indexPathForItem:sectionSubArray.count-1 inSection:self.sectionItems.count-1];
         }else {
-            indexPath = [NSIndexPath indexPathForItem:self.itemsArray.count-1 inSection:0];
+            indexPath = [NSIndexPath indexPathForItem:self.items.count-1 inSection:0];
         }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:animated];
@@ -766,10 +602,86 @@
         });
     }
 }
+
+- (id)itemAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (self.sectionItems.count) {
+        id sectionItem = [self.sectionItems objectAtIndex:indexPath.section];
+        NSMutableArray *sectionSubArray = [sectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
+        return sectionSubArray[indexPath.row];
+    }else {
+        return nil;
+    }
+}
+
+- (NSArray *)itemsArray
+{
+    return [[_sectionItems.firstObject valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] copy];
+}
+
+
+
+
+#pragma mark -  lazy
+
+- (NSMutableDictionary *)modelCellMap
+{
+    if (_modelCellMap == nil) {
+        _modelCellMap = [[NSMutableDictionary alloc]init];
+    }
+    return _modelCellMap;
+}
+
+- (NSMutableArray *)sectionItems
+{
+    if (_sectionItems == nil) {
+        _sectionItems = [[NSMutableArray alloc]init];
+    }
+    return _sectionItems;
+}
+
+
+- (void)setTableView:(UITableView *)tableView
+{
+    _tableView = tableView;
+    tableView.dataSource = self;
+    tableView.delegate = self;
+    if (self.modelCellMap.count) {
+        [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
+            NSString *nibPath = [[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:nibPath]) {
+                [tableView registerNib:[UINib nibWithNibName:cellClassString bundle:nil] forCellReuseIdentifier:cellClassString];
+            }else {
+                Class cellClass = NSClassFromString(cellClassString);
+                [tableView registerClass:cellClass forCellReuseIdentifier:cellClassString];
+            }
+        }];
+    }
+    [tableView reloadData];
+}
+
+- (void)setCollectionView:(UICollectionView *)collectionView
+{
+    _collectionView = collectionView;
+    collectionView.delegate = self;
+    collectionView.dataSource = self;
+    if (self.modelCellMap.count) {
+        [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
+            NSString *nibPath = [[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:nibPath]) {
+                [collectionView registerNib:[UINib nibWithNibName:cellClassString bundle:nil] forCellWithReuseIdentifier:cellClassString];
+            }else {
+                Class cellClass = NSClassFromString(cellClassString);
+                [collectionView registerClass:cellClass forCellWithReuseIdentifier:cellClassString];
+            }
+        }];
+    }
+    [collectionView reloadData];
+}
 @end
 
 
-@implementation ArrayDSDefaultSection
+@implementation WFDataSourceSection
 - (NSMutableArray *)sectionItems
 {
     if (_sectionItems == nil) {
