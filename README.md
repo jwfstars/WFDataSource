@@ -7,8 +7,11 @@ A block based UITableView/UICollectionView data source
 - Mutiple cells with different class to a single array
 - Both xib cell and none-xib cell are supported
 
-# Useage
+# Usage
 
+    //cells for cell models
+    NSDictionary *modelCellMap = @{ @"DemoCellModel":@"DemoCell", @"DemoCellModel_XIB":@"DemoCell_XIB" };
+                                       
     //create a data source
     WFDataSource *dataSource = [[WFDataSource alloc] initWithModelCellMap:modelCellMap cellConfigBlock:^(id cell, id item, NSIndexPath *indexPath) {
         [cell configCellWithItem:item];
