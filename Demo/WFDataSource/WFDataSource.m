@@ -1,6 +1,6 @@
 //
 //  CollectionDataSources.m
-//  Magazine
+//  WFDataSource
 //
 //  Created by 江文帆 on 15/9/14.
 //  Copyright (c) 2015年 江文帆. All rights reserved.

@@ -78,7 +78,6 @@
 			children = (
 				9A526C951DD6040100015D03 /* Cell */,
 				9A526C9B1DD6040100015D03 /* Model */,
-				9A526CA01DD6040100015D03 /* Resources */,
 				9A526C671DD5D07900015D03 /* AppDelegate.h */,
 				9A526C681DD5D07900015D03 /* AppDelegate.m */,
 				9A526C6A1DD5D07900015D03 /* ViewController.h */,
@@ -130,13 +129,6 @@
 				9A526CAC1DD6092400015D03 /* DemoCellModel_XIB.m */,
 			);
 			path = Model;
-			sourceTree = "<group>";
-		};
-		9A526CA01DD6040100015D03 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
