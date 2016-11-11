@@ -10,4 +10,8 @@
 
 @implementation DemoCellModel
 
+- (CGFloat)cellHeight
+{
+    return 70;
+}
 @end

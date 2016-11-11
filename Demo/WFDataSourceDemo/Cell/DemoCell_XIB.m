@@ -7,6 +7,12 @@
 //
 
 #import "DemoCell_XIB.h"
+#import "DemoCellModel_XIB.h"
+
+@interface DemoCell_XIB ()
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *infoLabel;
+@end
 
 @implementation DemoCell_XIB
 
@@ -15,10 +21,9 @@
     // Initialization code
 }
 
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
-
-    // Configure the view for the selected state
+- (void)configCellWithItem:(DemoCellModel_XIB *)item
+{
+    self.titleLabel.text = item.title;
+    self.infoLabel.text = item.subTitle;
 }
-
 @end

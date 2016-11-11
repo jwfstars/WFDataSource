@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface DemoCell_XIB : UITableViewCell
-
+- (void)configCellWithItem:(id)item;
 @end

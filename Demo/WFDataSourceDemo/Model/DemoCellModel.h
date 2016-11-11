@@ -7,7 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface DemoCellModel : NSObject
+@property (nonatomic,   copy) NSString *name;
+@property (nonatomic,   copy) NSString *imageName;
 
+@property (nonatomic, assign) CGFloat cellHeight;
 @end

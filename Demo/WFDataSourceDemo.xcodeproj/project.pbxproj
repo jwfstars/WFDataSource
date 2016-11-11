@@ -15,10 +15,10 @@
 		9A526C741DD5D07900015D03 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A526C721DD5D07900015D03 /* LaunchScreen.storyboard */; };
 		9A526C7E1DD5D57200015D03 /* WFDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526C7D1DD5D57200015D03 /* WFDataSource.m */; };
 		9A526CA11DD6040100015D03 /* DemoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526C971DD6040100015D03 /* DemoCell.m */; };
-		9A526CA21DD6040100015D03 /* DemoCell_XIB.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526C991DD6040100015D03 /* DemoCell_XIB.m */; };
-		9A526CA31DD6040100015D03 /* DemoCell_XIB.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A526C9A1DD6040100015D03 /* DemoCell_XIB.xib */; };
 		9A526CA41DD6040100015D03 /* DemoCellModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526C9D1DD6040100015D03 /* DemoCellModel.m */; };
-		9A526CA51DD6040100015D03 /* DemoCellModel_XIB.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526C9F1DD6040100015D03 /* DemoCellModel_XIB.m */; };
+		9A526CA91DD6086800015D03 /* DemoCell_XIB.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526CA71DD6086800015D03 /* DemoCell_XIB.m */; };
+		9A526CAA1DD6086800015D03 /* DemoCell_XIB.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A526CA81DD6086800015D03 /* DemoCell_XIB.xib */; };
+		9A526CAD1DD6092400015D03 /* DemoCellModel_XIB.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A526CAC1DD6092400015D03 /* DemoCellModel_XIB.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,13 +36,13 @@
 		9A526C7D1DD5D57200015D03 /* WFDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WFDataSource.m; sourceTree = "<group>"; };
 		9A526C961DD6040100015D03 /* DemoCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCell.h; sourceTree = "<group>"; };
 		9A526C971DD6040100015D03 /* DemoCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCell.m; sourceTree = "<group>"; };
-		9A526C981DD6040100015D03 /* DemoCell_XIB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCell_XIB.h; sourceTree = "<group>"; };
-		9A526C991DD6040100015D03 /* DemoCell_XIB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCell_XIB.m; sourceTree = "<group>"; };
-		9A526C9A1DD6040100015D03 /* DemoCell_XIB.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DemoCell_XIB.xib; sourceTree = "<group>"; };
 		9A526C9C1DD6040100015D03 /* DemoCellModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCellModel.h; sourceTree = "<group>"; };
 		9A526C9D1DD6040100015D03 /* DemoCellModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCellModel.m; sourceTree = "<group>"; };
-		9A526C9E1DD6040100015D03 /* DemoCellModel_XIB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCellModel_XIB.h; sourceTree = "<group>"; };
-		9A526C9F1DD6040100015D03 /* DemoCellModel_XIB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCellModel_XIB.m; sourceTree = "<group>"; };
+		9A526CA61DD6086800015D03 /* DemoCell_XIB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCell_XIB.h; sourceTree = "<group>"; };
+		9A526CA71DD6086800015D03 /* DemoCell_XIB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCell_XIB.m; sourceTree = "<group>"; };
+		9A526CA81DD6086800015D03 /* DemoCell_XIB.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DemoCell_XIB.xib; sourceTree = "<group>"; };
+		9A526CAB1DD6092400015D03 /* DemoCellModel_XIB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoCellModel_XIB.h; sourceTree = "<group>"; };
+		9A526CAC1DD6092400015D03 /* DemoCellModel_XIB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoCellModel_XIB.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,9 +114,9 @@
 			children = (
 				9A526C961DD6040100015D03 /* DemoCell.h */,
 				9A526C971DD6040100015D03 /* DemoCell.m */,
-				9A526C981DD6040100015D03 /* DemoCell_XIB.h */,
-				9A526C991DD6040100015D03 /* DemoCell_XIB.m */,
-				9A526C9A1DD6040100015D03 /* DemoCell_XIB.xib */,
+				9A526CA61DD6086800015D03 /* DemoCell_XIB.h */,
+				9A526CA71DD6086800015D03 /* DemoCell_XIB.m */,
+				9A526CA81DD6086800015D03 /* DemoCell_XIB.xib */,
 			);
 			path = Cell;
 			sourceTree = "<group>";
@@ -126,8 +126,8 @@
 			children = (
 				9A526C9C1DD6040100015D03 /* DemoCellModel.h */,
 				9A526C9D1DD6040100015D03 /* DemoCellModel.m */,
-				9A526C9E1DD6040100015D03 /* DemoCellModel_XIB.h */,
-				9A526C9F1DD6040100015D03 /* DemoCellModel_XIB.m */,
+				9A526CAB1DD6092400015D03 /* DemoCellModel_XIB.h */,
+				9A526CAC1DD6092400015D03 /* DemoCellModel_XIB.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -198,9 +198,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9A526CA31DD6040100015D03 /* DemoCell_XIB.xib in Resources */,
 				9A526C741DD5D07900015D03 /* LaunchScreen.storyboard in Resources */,
 				9A526C711DD5D07900015D03 /* Assets.xcassets in Resources */,
+				9A526CAA1DD6086800015D03 /* DemoCell_XIB.xib in Resources */,
 				9A526C6F1DD5D07900015D03 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -217,9 +217,9 @@
 				9A526CA11DD6040100015D03 /* DemoCell.m in Sources */,
 				9A526C691DD5D07900015D03 /* AppDelegate.m in Sources */,
 				9A526C7E1DD5D57200015D03 /* WFDataSource.m in Sources */,
-				9A526CA21DD6040100015D03 /* DemoCell_XIB.m in Sources */,
-				9A526CA51DD6040100015D03 /* DemoCellModel_XIB.m in Sources */,
 				9A526C661DD5D07900015D03 /* main.m in Sources */,
+				9A526CA91DD6086800015D03 /* DemoCell_XIB.m in Sources */,
+				9A526CAD1DD6092400015D03 /* DemoCellModel_XIB.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

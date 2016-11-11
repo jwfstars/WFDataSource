@@ -9,5 +9,6 @@
 #import <Foundation/Foundation.h>
 
 @interface DemoCellModel_XIB : NSObject
-
+@property (nonatomic,   copy) NSString *title;
+@property (nonatomic,   copy) NSString *subTitle;
 @end
