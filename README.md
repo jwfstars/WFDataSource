@@ -63,6 +63,7 @@ A block based UITableView/UICollectionView data source
 
 # 简介
 iOS界面开发中，每个控制器中重复度最高的代码，可能就是 TableView 的相关方法了。
+    
     - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;  
     - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;  
     - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;  
@@ -79,7 +80,7 @@ iOS界面开发中，每个控制器中重复度最高的代码，可能就是 T
         [cell configCellWithItem:item];
     }];
  
-在日常开发中，往往会出现使用XIB创建的Cell和纯代码Cell混用的情形，而两者在通过 table view 的缓存池机制创建 cell 时的差异，可以通过下面两个方法进行统一。
+在项目中往往会出现使用XIB创建的Cell和纯代码Cell混用的情形，而两者在通过 table view 的缓存池机制创建 cell 时的差异，可以通过下面两个方法进行统一。
     
     - (void)registerNib:(nullable UINib *)nib forCellReuseIdentifier:(NSString *)identifier;  
     - (void)registerClass:(nullable Class)cellClass forCellReuseIdentifier:(NSString *)identifier;  
