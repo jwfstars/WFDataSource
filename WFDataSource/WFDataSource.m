@@ -148,6 +148,11 @@
     }
 }
 
+- (void)insertNewItems:(NSArray *)newItems atIndex:(NSInteger)index
+{
+    [self insertNewItems:newItems atIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
+}
+
 - (void)insertNewItems:(NSArray *)newItems atIndexPath:(NSIndexPath *)indexPath
 {
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
@@ -238,6 +243,21 @@
     [self.tableView endUpdates];
 }
 
+- (void)removeCellWithItem:(id)item
+{
+    __block NSIndexPath *indexPath;
+    [self.sectionItems enumerateObjectsUsingBlock:^(id sectionItem, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSMutableArray *sectionSubArray = [sectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
+        NSInteger index = [sectionSubArray indexOfObject:item];
+        if (index != NSNotFound) {
+            indexPath = [NSIndexPath indexPathForItem:index inSection:idx];
+            *stop = YES;
+        }
+    }];
+    if (indexPath) {
+        [self removeCellAtIndexPath:indexPath];
+    }
+}
 
 
 
@@ -559,6 +579,19 @@
     }
 }
 
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+    NSIndexPath *currentIndexPath;
+    if (self.collectionView) {
+        currentIndexPath = [[self.collectionView indexPathsForVisibleItems]firstObject];
+    }else {
+        currentIndexPath = [[self.tableView indexPathsForVisibleRows]firstObject];
+    }
+    if (self.didEndScrollingAnimationBlock) {
+        self.didEndScrollingAnimationBlock(scrollView, currentIndexPath);
+    }
+}
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     NSIndexPath *currentIndexPath;
@@ -678,6 +711,29 @@
     }
     [collectionView reloadData];
 }
+
+#pragma mark - Empty
+- (void)handleEmptyWithMessage:(NSString *)message imageName:(NSString *)imageName
+{
+    [self handleEmptyWithTitle:nil message:message imageName:imageName action:nil];
+}
+
+- (void)handleEmptyWithEmptyObject:(VGTEmpty *)emptyObject
+{
+    [self reloadWithItems:@[emptyObject]];
+}
+
+- (void)handleEmptyWithTitle:(NSString *)title message:(NSString *)message imageName:(NSString *)imageName action:(dispatch_block_t)action
+{
+    VGTEmpty *emptyObject = [VGTEmpty new];
+    emptyObject.title = title;
+    emptyObject.action = action;
+    emptyObject.message = message;
+    emptyObject.imageName = imageName;
+    [self.tableView registerClass:[VGTEmptyCell class] forCellReuseIdentifier:@"VGTEmptyCell"];
+    [self reloadWithItems:@[emptyObject]];
+}
+
 @end
 
 
@@ -688,5 +744,154 @@
         _sectionItems = [NSMutableArray array];
     }
     return _sectionItems;
+}
+@end
+
+
+@interface VGTEmpty ()
+
+@end
+
+@implementation VGTEmpty
+
+@end
+
+@interface VGTEmptyCell()
+
+@property (nonatomic, strong) UILabel *titleLable;
+@property (nonatomic, strong) UILabel *messageLabel;
+@property (nonatomic, strong) UIImageView *placeHolderView;
+@property (nonatomic, strong) UIButton *actionButton;
+@property (nonatomic, strong) VGTEmpty *item;
+@property (nonatomic, strong) UIView *customView;
+@end
+
+@implementation VGTEmptyCell
++ (void)load
+{
+    [super load];
+    [VGTEmptyCell appearance].titleColor = [UIColor blackColor];
+    [VGTEmptyCell appearance].messageColor = [UIColor colorWithRed:108.0/255.0 green:108.0/255.0 blue:108.0/255.0 alpha:1];
+    [VGTEmptyCell appearance].actionButtonColor = [UIColor blueColor];
+}
+
+- (void)awakeFromNib {
+    // Initialization code
+    [super awakeFromNib];
+    [self setup];
+}
+
+- (void)setup
+{
+    self.backgroundColor = [UIColor clearColor];
+    
+    self.titleLable = ({
+        UILabel *titlelabel = [UILabel new];
+        titlelabel.textColor = [VGTEmptyCell appearance].titleColor;
+        titlelabel.textAlignment = NSTextAlignmentCenter;
+        titlelabel.font = [UIFont boldSystemFontOfSize:20];
+        titlelabel;
+    });
+    [self.contentView addSubview:self.titleLable];
+    
+    self.messageLabel = ({
+        UILabel *messageLabel = [UILabel new];
+        messageLabel.textColor = [VGTEmptyCell appearance].messageColor;
+        messageLabel.textAlignment = NSTextAlignmentCenter;
+        messageLabel.font = [UIFont systemFontOfSize:15];
+        messageLabel.numberOfLines = 3;
+        messageLabel;
+    });
+    [self.contentView addSubview:self.messageLabel];
+    
+    self.placeHolderView = ({
+        UIImageView *placeHolderView = [UIImageView new];
+        placeHolderView.contentMode = UIViewContentModeCenter;
+        placeHolderView;
+    });
+    [self.contentView addSubview:self.placeHolderView];
+    
+    self.actionButton = ({
+        UIButton *button = [UIButton new];
+        [button setTitle:@"刷新重试" forState:UIControlStateNormal];
+        button.titleLabel.font = [UIFont systemFontOfSize:15];
+        [button setTitleColor:[VGTEmptyCell appearance].actionButtonColor forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(onTapAction:) forControlEvents:UIControlEventTouchUpInside];
+        button;
+    });
+    [self.contentView addSubview:self.actionButton];
+}
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        [self setup];
+    }
+    return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    self.placeHolderView.bounds = CGRectMake(0, 0, self.placeHolderView.image.size.width, self.placeHolderView.image.size.height);
+    self.placeHolderView.center = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/3);
+    
+    if (self.item.title) {
+        self.titleLable.frame = CGRectMake(0, 0, self.bounds.size.width * 0.7, 20);
+        self.titleLable.center = CGPointMake(CGRectGetMidX(self.placeHolderView.frame), CGRectGetMaxY(self.placeHolderView.frame) + 40);
+        self.messageLabel.frame = CGRectMake(0, CGRectGetMaxY(self.titleLable.frame) + 10, self.bounds.size.width * 0.7, 40);
+        self.messageLabel.center = CGPointMake(CGRectGetMidX(self.titleLable.frame), self.messageLabel.center.y);
+    }else {
+        self.messageLabel.frame = CGRectMake(0, 0, self.bounds.size.width * 0.7, 40);
+        self.messageLabel.center = CGPointMake(CGRectGetMidX(self.placeHolderView.frame), CGRectGetMaxY(self.placeHolderView.frame) + 70);
+    }
+    self.actionButton.frame = CGRectMake(CGRectGetMinX(self.messageLabel.frame), CGRectGetMaxY(self.messageLabel.frame) + 10, self.messageLabel.frame.size.width, 60);
+}
+
+- (void)configCellWithItem:(VGTEmpty *)item
+{
+    _item = item;
+    self.titleLable.text = item.title;
+    self.titleLable.hidden = !item.title;
+    self.actionButton.hidden = !item.action;
+    
+    if (item.titleColor) {
+        self.titleLable.textColor = item.titleColor;
+    }else {
+        self.titleLable.textColor = [VGTEmptyCell appearance].titleColor;
+    }
+    
+    if (item.messageColor) {
+        self.messageLabel.textColor = item.messageColor;
+    }else {
+        self.messageLabel.textColor = [VGTEmptyCell appearance].messageColor;
+    }
+    
+    if (item.message) {
+        self.messageLabel.text = item.message;
+    }else {
+        self.messageLabel.text = @"这里什么都没有哦";
+    }
+    
+    self.placeHolderView.image = [UIImage imageNamed:item.imageName?:self.emptyImageName];
+
+    [self.actionButton setTitle:item.actionTitle?:@"刷新重试" forState:UIControlStateNormal];
+    
+    [self setupCustomViewWithItem:item];
+}
+
+- (void)setupCustomViewWithItem:(VGTEmpty *)empty
+{
+    self.customView = empty.customView;
+    empty.customView.frame = self.contentView.bounds;
+    [empty.customView removeFromSuperview];
+    empty.customView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    [self.contentView addSubview:empty.customView];
+    //    [self.contentView insertSubview:empty.customView atIndex:0];
+}
+
+- (void)onTapAction:(UIButton *)sender
+{
+    if (self.item.action) {
+        self.item.action();
+    }
 }
 @end

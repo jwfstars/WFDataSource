@@ -21,11 +21,17 @@ typedef UICollectionViewFlowLayout *(^wf_FlowLayoutBlock)();
 typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
 typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
 
+@protocol VGTCellConfig <NSObject>
+@required;
+- (void)configCellWithItem:(id)item;
 
+@optional;
+- (void)setupCell;
+@end
 
+@class VGTEmpty;
 
 @interface WFDataSource : NSObject
-
 @property (nonatomic,   copy) wf_OperationForRowBlock didSelectCellBlock;
 @property (nonatomic,   copy) wf_ViewForSectionBlock headerViewForSection;
 @property (nonatomic,   copy) wf_ViewForSectionBlock footerViewForSection;
@@ -52,6 +58,7 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout 
 @property (nonatomic,   copy) void(^didEndDraggingBlock)(UIScrollView *scrollView, BOOL willDecelerate, NSIndexPath *currentIndexPath);
 @property (nonatomic,   copy) void(^didEndDeceleratingBlock)(UIScrollView *scrollView, NSIndexPath *currentIndexPath);
 @property (nonatomic,   copy) void(^WillEndDraggingBlock)(UIScrollView *scrollView, CGPoint velocity, CGPoint *targetContentOffset);
+@property (nonatomic,   copy) void(^didEndScrollingAnimationBlock)(UIScrollView *scrollView, NSIndexPath *currentIndexPath);
 
 @property (nonatomic, assign) BOOL doNotDeselecteRow;
 
@@ -90,6 +97,8 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout 
 //Insert
 - (void)addNewItems:(NSArray *)newItems;
 
+- (void)insertNewItems:(NSArray *)newItems atIndex:(NSInteger)index;
+
 - (void)insertNewItems:(NSArray *)newItems atIndexPath:(NSIndexPath *)indexPath;
 
 - (void)addNewSectionItems:(NSArray *)newSectionItems;
@@ -104,15 +113,44 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout 
 
 - (void)removeCellAtIndexPath:(NSIndexPath *)indexPath animation:(UITableViewRowAnimation)animation;
 
+- (void)removeCellWithItem:(id)item;
 
 //Helper
 - (void)scrollToEndWithDelay:(NSTimeInterval)delay animated:(BOOL)animated;
 
 - (id)itemAtIndexPath:(NSIndexPath *)indexPath;
+
+//Empty
+- (void)handleEmptyWithMessage:(NSString *)message imageName:(NSString *)imageName;
+- (void)handleEmptyWithTitle:(NSString *)title message:(NSString *)message imageName:(NSString *)imageName action:(dispatch_block_t)action;
+- (void)handleEmptyWithEmptyObject:(VGTEmpty *)emptyObject;
 @end
 
 
 @interface WFDataSourceSection : NSObject
 @property (nonatomic,   copy) NSString *sectionTitle;
 @property (nonatomic, strong) NSMutableArray *sectionItems;
+@end
+
+
+#pragma mark - Empty
+@interface VGTEmpty : NSObject
+@property (nonatomic,   copy) NSString *title;
+@property (nonatomic,   copy) NSString *message;
+@property (nonatomic,   copy) NSString *imageName;
+@property (nonatomic,   copy) dispatch_block_t action;
+@property (nonatomic,   copy) NSString *actionTitle;
+
+@property (nonatomic, strong) UIColor *titleColor;
+@property (nonatomic, strong) UIColor *messageColor;
+@property (nonatomic, strong) UIView *customView;
+
+@property (nonatomic, assign) CGFloat cellInsetTop;
+@end
+
+@interface VGTEmptyCell : UITableViewCell <VGTCellConfig>
+@property (nonatomic, strong) UIColor *titleColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) UIColor *messageColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) UIColor *actionButtonColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic,   copy) NSString *emptyImageName UI_APPEARANCE_SELECTOR;
 @end
