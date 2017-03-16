@@ -48,8 +48,15 @@
 {
     self = [super init];
     if (self) {
+        [self.sectionItems removeAllObjects];
         [self.sectionItems addObjectsFromArray:sectionItems];
+        [self.modelCellMap removeAllObjects];
+        
+        NSDictionary *empty = @{
+                                @"WFDataSourceEmpty": @"WFDataSourceEmptyCell"
+                                };
         [self.modelCellMap addEntriesFromDictionary:map];
+        [self.modelCellMap addEntriesFromDictionary:empty];
         self.configureCellBlock = [block copy];
     }
     return self;
@@ -155,6 +162,10 @@
 
 - (void)insertNewItems:(NSArray *)newItems atIndexPath:(NSIndexPath *)indexPath
 {
+    if (self.items.count == 1 && [self.items.firstObject isKindOfClass:[WFDataSourceEmpty class]]) {
+        [self reloadWithItems:newItems];
+        return;
+    }
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
     for (NSInteger startIndex = indexPath.item; startIndex < indexPath.item + newItems.count; startIndex ++) {
         [indexSet addIndex:startIndex];
@@ -292,6 +303,11 @@
     }else {
         cellIdentifier = @"UITableViewCell";
     }
+    Class cellClass = NSClassFromString(cellIdentifier);
+    
+    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
+        [tableView registerClass:[WFDataSourceEmptyCell class] forCellReuseIdentifier:@"WFDataSourceEmptyCell"];
+    }
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
     if (!cell) {
@@ -301,8 +317,19 @@
             @throw [NSException exceptionWithName:@"cellIdentifier 异常" reason:cellIdentifier userInfo:self.modelCellMap];
         }
     }
-    self.configureCellBlock(cell, item, indexPath);
-    return cell;
+    
+    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
+        WFDataSourceEmptyCell *tableViewCell = (WFDataSourceEmptyCell *)cell;
+        tableViewCell.selectionStyle = UITableViewCellSelectionStyleNone;
+        [tableViewCell setSeparatorInset:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
+        [tableViewCell setLayoutMargins:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
+        [tableViewCell setPreservesSuperviewLayoutMargins:NO];
+        [tableViewCell configCellWithItem:item];
+        return tableViewCell;
+    }else {
+        self.configureCellBlock(cell, item, indexPath);
+        return cell;
+    }
 }
 
 #pragma mark  UITableView Height
@@ -310,10 +337,14 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     id item = [self itemAtIndexPath:indexPath];
-    if (self.heightForRow) {
-        return self.heightForRow(item, indexPath);
+    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
+        return self.tableView.bounds.size.height - [item cellInsetTop];// - self.tableView.contentInset.top;
+    }else {
+        if (self.heightForRow) {
+            return self.heightForRow(item, indexPath);
+        }
+        return self.tableView.rowHeight;
     }
-    return self.tableView.rowHeight;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
@@ -372,8 +403,13 @@
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
     id item = [self itemAtIndexPath:indexPath];
-    if (self.didSelectCellBlock) {
-        self.didSelectCellBlock(item, indexPath);
+    
+    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
+        
+    }else {
+        if (self.didSelectCellBlock) {
+            self.didSelectCellBlock(item, indexPath);
+        }
     }
 }
 
@@ -647,14 +683,6 @@
     }
 }
 
-- (NSArray *)itemsArray
-{
-    return [[_sectionItems.firstObject valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] copy];
-}
-
-
-
-
 #pragma mark -  lazy
 
 - (NSMutableDictionary *)modelCellMap
@@ -663,6 +691,11 @@
         _modelCellMap = [[NSMutableDictionary alloc]init];
     }
     return _modelCellMap;
+}
+
+- (NSArray *)items
+{
+    return [[_sectionItems.firstObject valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] copy];
 }
 
 - (NSMutableArray *)sectionItems
@@ -695,6 +728,7 @@
 
 - (void)setCollectionView:(UICollectionView *)collectionView
 {
+    [self.modelCellMap removeObjectsForKeys:@[@"WFDataSourceEmpty"]];
     _collectionView = collectionView;
     collectionView.delegate = self;
     collectionView.dataSource = self;
@@ -718,22 +752,21 @@
     [self handleEmptyWithTitle:nil message:message imageName:imageName action:nil];
 }
 
-- (void)handleEmptyWithEmptyObject:(VGTEmpty *)emptyObject
+- (void)handleEmptyWithEmptyObject:(WFDataSourceEmpty *)emptyObject
 {
     [self reloadWithItems:@[emptyObject]];
 }
 
 - (void)handleEmptyWithTitle:(NSString *)title message:(NSString *)message imageName:(NSString *)imageName action:(dispatch_block_t)action
 {
-    VGTEmpty *emptyObject = [VGTEmpty new];
+    WFDataSourceEmpty *emptyObject = [WFDataSourceEmpty new];
     emptyObject.title = title;
     emptyObject.action = action;
     emptyObject.message = message;
     emptyObject.imageName = imageName;
-    [self.tableView registerClass:[VGTEmptyCell class] forCellReuseIdentifier:@"VGTEmptyCell"];
+    [self.tableView registerClass:[WFDataSourceEmptyCell class] forCellReuseIdentifier:@"WFDataSourceEmptyCell"];
     [self reloadWithItems:@[emptyObject]];
 }
-
 @end
 
 
@@ -748,31 +781,31 @@
 @end
 
 
-@interface VGTEmpty ()
+@interface WFDataSourceEmpty ()
 
 @end
 
-@implementation VGTEmpty
+@implementation WFDataSourceEmpty
 
 @end
 
-@interface VGTEmptyCell()
+@interface WFDataSourceEmptyCell()
 
 @property (nonatomic, strong) UILabel *titleLable;
 @property (nonatomic, strong) UILabel *messageLabel;
 @property (nonatomic, strong) UIImageView *placeHolderView;
 @property (nonatomic, strong) UIButton *actionButton;
-@property (nonatomic, strong) VGTEmpty *item;
+@property (nonatomic, strong) WFDataSourceEmpty *item;
 @property (nonatomic, strong) UIView *customView;
 @end
 
-@implementation VGTEmptyCell
+@implementation WFDataSourceEmptyCell
 + (void)load
 {
     [super load];
-    [VGTEmptyCell appearance].titleColor = [UIColor blackColor];
-    [VGTEmptyCell appearance].messageColor = [UIColor colorWithRed:108.0/255.0 green:108.0/255.0 blue:108.0/255.0 alpha:1];
-    [VGTEmptyCell appearance].actionButtonColor = [UIColor blueColor];
+    [WFDataSourceEmptyCell appearance].titleColor = [UIColor blackColor];
+    [WFDataSourceEmptyCell appearance].messageColor = [UIColor colorWithRed:108.0/255.0 green:108.0/255.0 blue:108.0/255.0 alpha:1];
+    [WFDataSourceEmptyCell appearance].actionButtonColor = [UIColor blueColor];
 }
 
 - (void)awakeFromNib {
@@ -787,7 +820,7 @@
     
     self.titleLable = ({
         UILabel *titlelabel = [UILabel new];
-        titlelabel.textColor = [VGTEmptyCell appearance].titleColor;
+        titlelabel.textColor = [WFDataSourceEmptyCell appearance].titleColor;
         titlelabel.textAlignment = NSTextAlignmentCenter;
         titlelabel.font = [UIFont boldSystemFontOfSize:20];
         titlelabel;
@@ -796,7 +829,7 @@
     
     self.messageLabel = ({
         UILabel *messageLabel = [UILabel new];
-        messageLabel.textColor = [VGTEmptyCell appearance].messageColor;
+        messageLabel.textColor = [WFDataSourceEmptyCell appearance].messageColor;
         messageLabel.textAlignment = NSTextAlignmentCenter;
         messageLabel.font = [UIFont systemFontOfSize:15];
         messageLabel.numberOfLines = 3;
@@ -815,7 +848,7 @@
         UIButton *button = [UIButton new];
         [button setTitle:@"刷新重试" forState:UIControlStateNormal];
         button.titleLabel.font = [UIFont systemFontOfSize:15];
-        [button setTitleColor:[VGTEmptyCell appearance].actionButtonColor forState:UIControlStateNormal];
+        [button setTitleColor:[WFDataSourceEmptyCell appearance].actionButtonColor forState:UIControlStateNormal];
         [button addTarget:self action:@selector(onTapAction:) forControlEvents:UIControlEventTouchUpInside];
         button;
     });
@@ -846,7 +879,7 @@
     self.actionButton.frame = CGRectMake(CGRectGetMinX(self.messageLabel.frame), CGRectGetMaxY(self.messageLabel.frame) + 10, self.messageLabel.frame.size.width, 60);
 }
 
-- (void)configCellWithItem:(VGTEmpty *)item
+- (void)configCellWithItem:(WFDataSourceEmpty *)item
 {
     _item = item;
     self.titleLable.text = item.title;
@@ -856,13 +889,13 @@
     if (item.titleColor) {
         self.titleLable.textColor = item.titleColor;
     }else {
-        self.titleLable.textColor = [VGTEmptyCell appearance].titleColor;
+        self.titleLable.textColor = [WFDataSourceEmptyCell appearance].titleColor;
     }
     
     if (item.messageColor) {
         self.messageLabel.textColor = item.messageColor;
     }else {
-        self.messageLabel.textColor = [VGTEmptyCell appearance].messageColor;
+        self.messageLabel.textColor = [WFDataSourceEmptyCell appearance].messageColor;
     }
     
     if (item.message) {
@@ -878,7 +911,7 @@
     [self setupCustomViewWithItem:item];
 }
 
-- (void)setupCustomViewWithItem:(VGTEmpty *)empty
+- (void)setupCustomViewWithItem:(WFDataSourceEmpty *)empty
 {
     self.customView = empty.customView;
     empty.customView.frame = self.contentView.bounds;

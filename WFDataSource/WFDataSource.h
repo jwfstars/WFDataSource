@@ -21,7 +21,7 @@ typedef UICollectionViewFlowLayout *(^wf_FlowLayoutBlock)();
 typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
 typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
 
-@protocol VGTCellConfig <NSObject>
+@protocol WFDataSourceCellConfig <NSObject>
 @required;
 - (void)configCellWithItem:(id)item;
 
@@ -29,7 +29,7 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout 
 - (void)setupCell;
 @end
 
-@class VGTEmpty;
+@class WFDataSourceEmpty;
 
 @interface WFDataSource : NSObject
 @property (nonatomic,   copy) wf_OperationForRowBlock didSelectCellBlock;
@@ -123,18 +123,19 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout 
 //Empty
 - (void)handleEmptyWithMessage:(NSString *)message imageName:(NSString *)imageName;
 - (void)handleEmptyWithTitle:(NSString *)title message:(NSString *)message imageName:(NSString *)imageName action:(dispatch_block_t)action;
-- (void)handleEmptyWithEmptyObject:(VGTEmpty *)emptyObject;
+- (void)handleEmptyWithEmptyObject:(WFDataSourceEmpty *)emptyObject;
 @end
 
 
 @interface WFDataSourceSection : NSObject
 @property (nonatomic,   copy) NSString *sectionTitle;
 @property (nonatomic, strong) NSMutableArray *sectionItems;
+@property (nonatomic,   copy) NSString *sectionIdentifier;
 @end
 
 
 #pragma mark - Empty
-@interface VGTEmpty : NSObject
+@interface WFDataSourceEmpty : NSObject
 @property (nonatomic,   copy) NSString *title;
 @property (nonatomic,   copy) NSString *message;
 @property (nonatomic,   copy) NSString *imageName;
@@ -148,9 +149,10 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout 
 @property (nonatomic, assign) CGFloat cellInsetTop;
 @end
 
-@interface VGTEmptyCell : UITableViewCell <VGTCellConfig>
+@interface WFDataSourceEmptyCell : UITableViewCell <WFDataSourceCellConfig>
 @property (nonatomic, strong) UIColor *titleColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor *messageColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor *actionButtonColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic,   copy) NSString *emptyImageName UI_APPEARANCE_SELECTOR;
+@property (nonatomic,   copy) NSString *errorImageName UI_APPEARANCE_SELECTOR;
 @end
