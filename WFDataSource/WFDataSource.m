@@ -14,7 +14,7 @@
 
 @interface WFDataSource() <UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDelegate,UICollectionViewDelegateFlowLayout>
 
-@property (nonatomic, copy) wf_CellConfigureBlock configureCellBlock;
+@property (nonatomic, copy) wf_CellConfigureBlock cellConfigBlock;
 @property (nonatomic, strong) NSMutableDictionary *modelCellMap;
 
 @property (nonatomic,   copy) NSDictionary *(^customSectionProperties)();
@@ -52,12 +52,12 @@
         [self.sectionItems addObjectsFromArray:sectionItems];
         [self.modelCellMap removeAllObjects];
         
+        [self.modelCellMap addEntriesFromDictionary:map];
         NSDictionary *empty = @{
                                 @"WFDataSourceEmpty": @"WFDataSourceEmptyCell"
                                 };
-        [self.modelCellMap addEntriesFromDictionary:map];
         [self.modelCellMap addEntriesFromDictionary:empty];
-        self.configureCellBlock = [block copy];
+        self.cellConfigBlock = [block copy];
     }
     return self;
 }
@@ -291,13 +291,19 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *cellIdentifier;
     id item = [self itemAtIndexPath:indexPath];
     
+    __block NSString *cellIdentifier;
     if (self.modelCellMap.count) {
-        NSString *classString = NSStringFromClass([item class]);
-        cellIdentifier = [self.modelCellMap objectForKey:classString];
+        [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *obj, BOOL * _Nonnull stop) {
+            Class modelClass = NSClassFromString(key);
+            if ([item isKindOfClass:modelClass]) {
+                cellIdentifier = obj;
+                *stop = YES;
+            }
+        }];
         if (!cellIdentifier) {
+            NSString *classString = NSStringFromClass([item class]);
             @throw [NSException exceptionWithName:@"cellIdentifier 异常" reason:classString userInfo:self.modelCellMap];
         }
     }else {
@@ -327,7 +333,7 @@
         [tableViewCell configCellWithItem:item];
         return tableViewCell;
     }else {
-        self.configureCellBlock(cell, item, indexPath);
+        self.cellConfigBlock(cell, item, indexPath);
         return cell;
     }
 }
@@ -461,21 +467,27 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *cellIdentifier;
     id item = [self itemAtIndexPath:indexPath];
-    
+    __block NSString *cellIdentifier;
     if (self.modelCellMap.count) {
-        NSString *classString = NSStringFromClass([item class]);
-        cellIdentifier = [self.modelCellMap objectForKey:classString];
+        [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *obj, BOOL * _Nonnull stop) {
+            Class modelClass = NSClassFromString(key);
+            if ([item isKindOfClass:modelClass]) {
+                cellIdentifier = obj;
+                *stop = YES;
+            }
+        }];
+        
         if (!cellIdentifier) {
+            NSString *classString = NSStringFromClass([item class]);
             @throw [NSException exceptionWithName:@"cellIdentifier 异常" reason:classString userInfo:self.modelCellMap];
         }
     }else {
         cellIdentifier = @"UICollectionViewCell";
     }
-    
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
-    self.configureCellBlock(cell, item, indexPath);
+    
+    self.cellConfigBlock(cell, item, indexPath);
     return cell;
 }
 
