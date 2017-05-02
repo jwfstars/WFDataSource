@@ -315,8 +315,7 @@
     }else {
         cellIdentifier = @"UITableViewCell";
     }
-    Class cellClass = NSClassFromString(cellIdentifier);
-    
+
     if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
         [tableView registerClass:[WFDataSourceEmptyCell class] forCellReuseIdentifier:@"WFDataSourceEmptyCell"];
     }
