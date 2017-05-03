@@ -401,7 +401,7 @@
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
     if (self.footerViewForSection) {
-        return self.headerViewForSection(self.sectionItems[section], section);
+        return self.footerViewForSection(self.sectionItems[section], section);
     }
     return nil;
 }
