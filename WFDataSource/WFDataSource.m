@@ -18,6 +18,8 @@
 @property (nonatomic, strong) NSMutableDictionary *modelCellMap;
 
 @property (nonatomic,   copy) NSDictionary *(^customSectionProperties)();
+
+@property (nonatomic, strong) NSMutableDictionary *heightAtIndexPath;
 @end
 
 @implementation WFDataSource
@@ -58,6 +60,7 @@
                                 };
         [self.modelCellMap addEntriesFromDictionary:empty];
         self.cellConfigBlock = [block copy];
+        self.heightAtIndexPath = [NSMutableDictionary dictionary];
     }
     return self;
 }
@@ -309,8 +312,17 @@
             cellIdentifier = [self.modelCellMap objectForKey:NSStringFromClass([item class])];
         }
         if (!cellIdentifier) {
-            NSString *classString = NSStringFromClass([item class]);
-            @throw [NSException exceptionWithName:@"cellIdentifier 异常" reason:classString userInfo:self.modelCellMap];
+            [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *obj, BOOL * _Nonnull stop) {
+                Class modelClass = NSClassFromString(key);
+                if ([item isKindOfClass:modelClass]) {
+                    cellIdentifier = obj;
+                    *stop = YES;
+                }
+            }];
+            if (!cellIdentifier) {
+                NSString *classString = NSStringFromClass([item class]);
+                @throw [NSException exceptionWithName:@"cellIdentifier 异常" reason:classString userInfo:self.modelCellMap];
+            }
         }
     }else {
         cellIdentifier = @"UITableViewCell";
@@ -386,6 +398,20 @@
     }else {
         return 0;
     }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSNumber *height = [self.heightAtIndexPath objectForKey:indexPath];
+    if(height) {
+        return height.floatValue;
+    } else {
+        return UITableViewAutomaticDimension;
+    }
+}
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSNumber *height = @(cell.frame.size.height);
+    [self.heightAtIndexPath setObject:height forKey:indexPath];
 }
 
 #pragma mark  UITableView Section Header/Footer View
