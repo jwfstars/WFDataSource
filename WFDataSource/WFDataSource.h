@@ -32,6 +32,7 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout 
 @class WFDataSourceEmpty;
 
 @interface WFDataSource : NSObject
+@property (nonatomic,   copy) wf_CellConfigureBlock cellConfigBlock;
 @property (nonatomic,   copy) wf_OperationForRowBlock didSelectCellBlock;
 @property (nonatomic,   copy) wf_ViewForSectionBlock headerViewForSection;
 @property (nonatomic,   copy) wf_ViewForSectionBlock footerViewForSection;

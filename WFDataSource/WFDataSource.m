@@ -14,7 +14,6 @@
 
 @interface WFDataSource() <UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDelegate,UICollectionViewDelegateFlowLayout>
 
-@property (nonatomic, copy) wf_CellConfigureBlock cellConfigBlock;
 @property (nonatomic, strong) NSMutableDictionary *modelCellMap;
 
 @property (nonatomic,   copy) NSDictionary *(^customSectionProperties)();
@@ -412,6 +411,17 @@
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     NSNumber *height = @(cell.frame.size.height);
     [self.heightAtIndexPath setObject:height forKey:indexPath];
+    if (self.willDisplayCellBlock) {
+        id item = [self itemAtIndexPath:indexPath];
+        self.willDisplayCellBlock(cell, item, indexPath);
+    }
+}
+    
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
+    if (self.didEndDisplayCellBlock) {
+        id item = [self itemAtIndexPath:indexPath];
+        self.didEndDisplayCellBlock(cell, item, indexPath);
+    }
 }
 
 #pragma mark  UITableView Section Header/Footer View
