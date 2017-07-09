@@ -157,3 +157,11 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout 
 @property (nonatomic,   copy) NSString *emptyImageName UI_APPEARANCE_SELECTOR;
 @property (nonatomic,   copy) NSString *errorImageName UI_APPEARANCE_SELECTOR;
 @end
+
+@interface WFDataSourceEmptyCollectionCell : UICollectionViewCell <WFDataSourceCellConfig>
+@property (nonatomic, strong) UIColor *titleColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) UIColor *messageColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) UIColor *actionButtonColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic,   copy) NSString *emptyImageName UI_APPEARANCE_SELECTOR;
+@property (nonatomic,   copy) NSString *errorImageName UI_APPEARANCE_SELECTOR;
+@end

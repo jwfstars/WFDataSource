@@ -54,10 +54,6 @@
         [self.modelCellMap removeAllObjects];
         
         [self.modelCellMap addEntriesFromDictionary:map];
-        NSDictionary *empty = @{
-                                @"WFDataSourceEmpty": @"WFDataSourceEmptyCell"
-                                };
-        [self.modelCellMap addEntriesFromDictionary:empty];
         self.cellConfigBlock = [block copy];
         self.heightAtIndexPath = [NSMutableDictionary dictionary];
     }
@@ -538,8 +534,12 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     id item = [self itemAtIndexPath:indexPath];
-    if (self.didSelectCellBlock) {
-        self.didSelectCellBlock(item, indexPath);
+    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
+        
+    }else {
+        if (self.didSelectCellBlock) {
+            self.didSelectCellBlock(item, indexPath);
+        }
     }
 }
 
@@ -554,16 +554,20 @@
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.collectionViewLayoutSize) {
-        id item = [self itemAtIndexPath:indexPath];
-        return self.collectionViewLayoutSize(item, collectionViewLayout, indexPath);
-    }else if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] && self.collectionView.collectionViewLayout) {
-        return ((UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout).itemSize;
+    id item = [self itemAtIndexPath:indexPath];
+    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
+        return self.collectionView.bounds.size;
     }else {
-        if (self.collectionViewLayout) {
-            return self.collectionViewLayout().itemSize;
+        if (self.collectionViewLayoutSize) {
+            return self.collectionViewLayoutSize(item, collectionViewLayout, indexPath);
+        }else if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] && self.collectionView.collectionViewLayout) {
+            return ((UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout).itemSize;
         }else {
-            return CGSizeZero;
+            if (self.collectionViewLayout) {
+                return self.collectionViewLayout().itemSize;
+            }else {
+                return CGSizeZero;
+            }
         }
     }
 }
@@ -765,6 +769,8 @@
     _tableView = tableView;
     tableView.dataSource = self;
     tableView.delegate = self;
+    NSDictionary *empty = @{@"WFDataSourceEmpty": @"WFDataSourceEmptyCell"};
+    [self.modelCellMap addEntriesFromDictionary:empty];
     if (self.modelCellMap.count) {
         [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
             NSString *nibPath = [[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
@@ -781,10 +787,11 @@
 
 - (void)setCollectionView:(UICollectionView *)collectionView
 {
-    [self.modelCellMap removeObjectsForKeys:@[@"WFDataSourceEmpty"]];
     _collectionView = collectionView;
     collectionView.delegate = self;
     collectionView.dataSource = self;
+    NSDictionary *empty = @{@"WFDataSourceEmpty": @"WFDataSourceEmptyCollectionCell"};
+    [self.modelCellMap addEntriesFromDictionary:empty];
     if (self.modelCellMap.count) {
         [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
             NSString *nibPath = [[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
@@ -971,7 +978,147 @@
     [empty.customView removeFromSuperview];
     empty.customView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.contentView addSubview:empty.customView];
-    //    [self.contentView insertSubview:empty.customView atIndex:0];
+}
+
+- (void)onTapAction:(UIButton *)sender
+{
+    if (self.item.action) {
+        self.item.action();
+    }
+}
+@end
+
+
+
+@interface WFDataSourceEmptyCollectionCell()
+
+@property (nonatomic, strong) UILabel *titleLable;
+@property (nonatomic, strong) UILabel *messageLabel;
+@property (nonatomic, strong) UIImageView *placeHolderView;
+@property (nonatomic, strong) UIButton *actionButton;
+@property (nonatomic, strong) WFDataSourceEmpty *item;
+@property (nonatomic, strong) UIView *customView;
+@end
+
+@implementation WFDataSourceEmptyCollectionCell
++ (void)load
+{
+    [super load];
+    [WFDataSourceEmptyCell appearance].titleColor = [UIColor blackColor];
+    [WFDataSourceEmptyCell appearance].messageColor = [UIColor colorWithRed:108.0/255.0 green:108.0/255.0 blue:108.0/255.0 alpha:1];
+    [WFDataSourceEmptyCell appearance].actionButtonColor = [UIColor blueColor];
+}
+
+- (void)awakeFromNib {
+    // Initialization code
+    [super awakeFromNib];
+    [self setup];
+}
+
+- (void)setup
+{
+    self.backgroundColor = [UIColor clearColor];
+    
+    self.titleLable = ({
+        UILabel *titlelabel = [UILabel new];
+        titlelabel.textColor = [WFDataSourceEmptyCell appearance].titleColor;
+        titlelabel.textAlignment = NSTextAlignmentCenter;
+        titlelabel.font = [UIFont boldSystemFontOfSize:20];
+        titlelabel;
+    });
+    [self.contentView addSubview:self.titleLable];
+    
+    self.messageLabel = ({
+        UILabel *messageLabel = [UILabel new];
+        messageLabel.textColor = [WFDataSourceEmptyCell appearance].messageColor;
+        messageLabel.textAlignment = NSTextAlignmentCenter;
+        messageLabel.font = [UIFont systemFontOfSize:15];
+        messageLabel.numberOfLines = 3;
+        messageLabel;
+    });
+    [self.contentView addSubview:self.messageLabel];
+    
+    self.placeHolderView = ({
+        UIImageView *placeHolderView = [UIImageView new];
+        placeHolderView.contentMode = UIViewContentModeCenter;
+        placeHolderView;
+    });
+    [self.contentView addSubview:self.placeHolderView];
+    
+    self.actionButton = ({
+        UIButton *button = [UIButton new];
+        [button setTitle:@"刷新重试" forState:UIControlStateNormal];
+        button.titleLabel.font = [UIFont systemFontOfSize:15];
+        [button setTitleColor:[WFDataSourceEmptyCell appearance].actionButtonColor forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(onTapAction:) forControlEvents:UIControlEventTouchUpInside];
+        button;
+    });
+    [self.contentView addSubview:self.actionButton];
+}
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        [self setup];
+    }
+    return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    self.placeHolderView.bounds = CGRectMake(0, 0, self.placeHolderView.image.size.width, self.placeHolderView.image.size.height);
+    self.placeHolderView.center = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/3);
+    
+    if (self.item.title) {
+        self.titleLable.frame = CGRectMake(0, 0, self.bounds.size.width * 0.7, 20);
+        self.titleLable.center = CGPointMake(CGRectGetMidX(self.placeHolderView.frame), CGRectGetMaxY(self.placeHolderView.frame) + 40);
+        self.messageLabel.frame = CGRectMake(0, CGRectGetMaxY(self.titleLable.frame) + 10, self.bounds.size.width * 0.7, 40);
+        self.messageLabel.center = CGPointMake(CGRectGetMidX(self.titleLable.frame), self.messageLabel.center.y);
+    }else {
+        self.messageLabel.frame = CGRectMake(0, 0, self.bounds.size.width * 0.7, 40);
+        self.messageLabel.center = CGPointMake(CGRectGetMidX(self.placeHolderView.frame), CGRectGetMaxY(self.placeHolderView.frame) + 70);
+    }
+    self.actionButton.frame = CGRectMake(CGRectGetMinX(self.messageLabel.frame), CGRectGetMaxY(self.messageLabel.frame) + 10, self.messageLabel.frame.size.width, 60);
+}
+
+- (void)configCellWithItem:(WFDataSourceEmpty *)item
+{
+    _item = item;
+    self.titleLable.text = item.title;
+    self.titleLable.hidden = !item.title;
+    self.actionButton.hidden = !item.action;
+    
+    if (item.titleColor) {
+        self.titleLable.textColor = item.titleColor;
+    }else {
+        self.titleLable.textColor = [WFDataSourceEmptyCell appearance].titleColor;
+    }
+    
+    if (item.messageColor) {
+        self.messageLabel.textColor = item.messageColor;
+    }else {
+        self.messageLabel.textColor = [WFDataSourceEmptyCell appearance].messageColor;
+    }
+    
+    if (item.message) {
+        self.messageLabel.text = item.message;
+    }else {
+        self.messageLabel.text = @"这里什么都没有哦";
+    }
+    
+    self.placeHolderView.image = [UIImage imageNamed:item.imageName?:self.emptyImageName];
+    
+    [self.actionButton setTitle:item.actionTitle?:@"刷新重试" forState:UIControlStateNormal];
+    
+    [self setupCustomViewWithItem:item];
+}
+
+- (void)setupCustomViewWithItem:(WFDataSourceEmpty *)empty
+{
+    self.customView = empty.customView;
+    empty.customView.frame = self.contentView.bounds;
+    [empty.customView removeFromSuperview];
+    empty.customView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    [self.contentView addSubview:empty.customView];
 }
 
 - (void)onTapAction:(UIButton *)sender
