@@ -144,6 +144,7 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout 
 @property (nonatomic,   copy) NSString *actionTitle;
 
 @property (nonatomic, strong) UIColor *titleColor;
+@property (nonatomic, strong) UIColor *actionButtonColor;
 @property (nonatomic, strong) UIColor *messageColor;
 @property (nonatomic, strong) UIView *customView;
 

@@ -250,6 +250,10 @@
     [self.tableView beginUpdates];
     [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:animation];
     [self.tableView endUpdates];
+    
+    [self.collectionView performBatchUpdates:^{
+        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+    } completion:nil];
 }
 
 - (void)removeCellWithItem:(id)item
@@ -908,7 +912,9 @@
         UIButton *button = [UIButton new];
         [button setTitle:@"刷新重试" forState:UIControlStateNormal];
         button.titleLabel.font = [UIFont systemFontOfSize:15];
-        [button setTitleColor:[WFDataSourceEmptyCell appearance].actionButtonColor forState:UIControlStateNormal];
+        [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        button.backgroundColor = [WFDataSourceEmptyCell appearance].actionButtonColor;
+        button.layer.cornerRadius = 2;
         [button addTarget:self action:@selector(onTapAction:) forControlEvents:UIControlEventTouchUpInside];
         button;
     });
@@ -936,7 +942,8 @@
         self.messageLabel.frame = CGRectMake(0, 0, self.bounds.size.width * 0.7, 40);
         self.messageLabel.center = CGPointMake(CGRectGetMidX(self.placeHolderView.frame), CGRectGetMaxY(self.placeHolderView.frame) + 70);
     }
-    self.actionButton.frame = CGRectMake(CGRectGetMinX(self.messageLabel.frame), CGRectGetMaxY(self.messageLabel.frame) + 10, self.messageLabel.frame.size.width, 60);
+    self.actionButton.frame = CGRectMake(CGRectGetMinX(self.messageLabel.frame), CGRectGetMaxY(self.messageLabel.frame) + 10, 80, 40);
+    self.actionButton.center = CGPointMake(CGRectGetMidX(self.titleLable.frame), self.actionButton.center.y);
 }
 
 - (void)configCellWithItem:(WFDataSourceEmpty *)item
@@ -944,7 +951,10 @@
     _item = item;
     self.titleLable.text = item.title;
     self.titleLable.hidden = !item.title;
-    self.actionButton.hidden = !item.action;
+    self.actionButton.hidden = !item.actionTitle;
+    
+    [self.actionButton setTitle:item.actionTitle?:@"刷新重试" forState:UIControlStateNormal];
+    self.actionButton.backgroundColor = item.actionButtonColor?:[WFDataSourceEmptyCell appearance].actionButtonColor;
     
     if (item.titleColor) {
         self.titleLable.textColor = item.titleColor;
@@ -965,8 +975,6 @@
     }
     
     self.placeHolderView.image = [UIImage imageNamed:item.imageName?:self.emptyImageName];
-
-    [self.actionButton setTitle:item.actionTitle?:@"刷新重试" forState:UIControlStateNormal];
     
     [self setupCustomViewWithItem:item];
 }
