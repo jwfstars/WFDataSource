@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+@class WFDataSourceSection;
+
 typedef void (^wf_CellConfigureBlock)(id cell, id item, NSIndexPath *indexPath);
 typedef UIView *(^wf_ViewForSectionBlock)(id sectionItem, NSInteger section);
 typedef CGFloat (^wf_HeightForRowBlock)(id item, NSIndexPath *indexPath);
@@ -20,6 +22,7 @@ typedef UICollectionReusableView *(^wf_ReusebleViewBlock)(id sectionItem, NSStri
 typedef UICollectionViewFlowLayout *(^wf_FlowLayoutBlock)();
 typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
 typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
+typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *sectionItem, NSInteger section);
 
 @protocol WFDataSourceCellConfig <NSObject>
 @required;
@@ -53,6 +56,7 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout 
 @property (nonatomic,   copy) wf_FlowLayoutSizeBlock collectionViewLayoutSize;
 @property (nonatomic,   copy) wf_FlowLayoutSectionSizeBlock collectionViewFooterSize;
 @property (nonatomic,   copy) wf_FlowLayoutSectionSizeBlock collectionViewHeaderSize;
+@property (nonatomic, strong) wf_FlowLayoutSectionInsetBlock collectionSectionInset;
 
 @property (nonatomic,   copy) void(^didScrollBlock)(UIScrollView *scrollView);
 @property (nonatomic,   copy) void(^willBeginDraggingBlock)(UIScrollView *scrollView);
