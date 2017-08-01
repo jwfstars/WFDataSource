@@ -148,7 +148,6 @@
         [self reloadWithItems:newItems];
     }else {
         WFDataSourceSection *secion = self.sectionItems.firstObject;
-        NSLog(@"count = %@",@(secion.sectionItems.count));
         [self insertNewItems:newItems atIndexPath:[NSIndexPath indexPathForItem:secion.sectionItems.count inSection:0]];
     }
 }
@@ -195,15 +194,17 @@
 - (void)insertNewSectionItems:(NSArray *)sectionItems atIndexPath:(NSIndexPath *)indexPath
 {
     NSMutableArray *sectionDatasM = [NSMutableArray arrayWithArray:sectionItems];
-    /*处理重复情况*/
-    id lastSectionItem = [self.sectionItems objectAtIndex:indexPath.section - 1];
-    id newFirstSectionItem = sectionItems.firstObject;
-    NSString *title = [self sectionPropertiesMap][SECTION_TITLE_NAME];
-    if ([[lastSectionItem valueForKey:title] isEqual:[newFirstSectionItem valueForKey:title]]) {
-        [self insertNewItems:[newFirstSectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] atIndexPath:[NSIndexPath indexPathForItem:[[lastSectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] count] inSection:indexPath.section-1]];
-        [sectionDatasM removeObject:newFirstSectionItem];
+    if (indexPath.section > 0) {
+        /*处理重复情况*/
+        id lastSectionItem = [self.sectionItems objectAtIndex:indexPath.section - 1];
+        id newFirstSectionItem = sectionItems.firstObject;
+        NSString *title = [self sectionPropertiesMap][SECTION_TITLE_NAME];
+        if ([[lastSectionItem valueForKey:title] isEqual:[newFirstSectionItem valueForKey:title]]) {
+            [self insertNewItems:[newFirstSectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] atIndexPath:[NSIndexPath indexPathForItem:[[lastSectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] count] inSection:indexPath.section-1]];
+            [sectionDatasM removeObject:newFirstSectionItem];
+        }
+        /***********/
     }
-    /***********/
     
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
     for (NSInteger startIndex = indexPath.section; startIndex < indexPath.section + sectionDatasM.count; startIndex ++) {
@@ -553,47 +554,6 @@
     }
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    id item = [self itemAtIndexPath:indexPath];
-    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
-        return self.collectionView.bounds.size;
-    }else {
-        if (self.collectionViewLayoutSize) {
-            return self.collectionViewLayoutSize(item, collectionViewLayout, indexPath);
-        }else if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] && self.collectionView.collectionViewLayout) {
-            return ((UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout).itemSize;
-        }else {
-            if (self.collectionViewLayout) {
-                return self.collectionViewLayout().itemSize;
-            }else {
-                return CGSizeZero;
-            }
-        }
-    }
-}
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
-    if (self.sectionItems.count) {
-        id sectionItem = self.sectionItems[section];
-        if (self.collectionViewHeaderSize) {
-            return self.collectionViewHeaderSize(sectionItem, collectionViewLayout, section);
-        }
-        return CGSizeZero;
-    }
-    return CGSizeZero;
-}
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section {
-    if (self.sectionItems.count) {
-        id sectionItem = self.sectionItems[section];
-        if (self.collectionViewFooterSize) {
-            return self.collectionViewFooterSize(sectionItem, collectionViewLayout, section);
-        }
-        return CGSizeZero;
-    }
-    return CGSizeZero;
-}
-
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout heightForHeaderInSection:(NSInteger)section
 {
     if (self.sectionItems.count) {
@@ -634,7 +594,60 @@
     }
 }
 
+#pragma mark - UICollectionViewDelegateFlowLayout
 
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    id item = [self itemAtIndexPath:indexPath];
+    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
+        return self.collectionView.bounds.size;
+    }else {
+        if (self.collectionViewLayoutSize) {
+            return self.collectionViewLayoutSize(item, collectionViewLayout, indexPath);
+        }else if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] && self.collectionView.collectionViewLayout) {
+            return ((UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout).itemSize;
+        }else {
+            if (self.collectionViewLayout) {
+                return self.collectionViewLayout().itemSize;
+            }else {
+                return CGSizeZero;
+            }
+        }
+    }
+}
+
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
+    WFDataSourceSection *section_item = self.sectionItems[section];
+    if (self.collectionSectionInset) {
+        return self.collectionSectionInset(section_item, section);
+    }else if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] && self.collectionView.collectionViewLayout) {
+        UICollectionViewFlowLayout *flowLayout = self.collectionView.collectionViewLayout;
+        return flowLayout.sectionInset;
+    }else {
+        return UIEdgeInsetsZero;
+    }
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
+    if (self.sectionItems.count) {
+        id sectionItem = self.sectionItems[section];
+        if (self.collectionViewHeaderSize) {
+            return self.collectionViewHeaderSize(sectionItem, collectionViewLayout, section);
+        }
+        return CGSizeZero;
+    }
+    return CGSizeZero;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section {
+    if (self.sectionItems.count) {
+        id sectionItem = self.sectionItems[section];
+        if (self.collectionViewFooterSize) {
+            return self.collectionViewFooterSize(sectionItem, collectionViewLayout, section);
+        }
+        return CGSizeZero;
+    }
+    return CGSizeZero;
+}
 
 
 #pragma mark - ScrollView Delegate
