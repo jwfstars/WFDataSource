@@ -136,6 +136,8 @@ typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *secti
 @property (nonatomic,   copy) NSString *sectionTitle;
 @property (nonatomic, strong) NSMutableArray *sectionItems;
 @property (nonatomic,   copy) NSString *sectionIdentifier;
+@property (nonatomic, strong) id headerItem;
+@property (nonatomic, strong) id footerItem;
 @end
 
 
