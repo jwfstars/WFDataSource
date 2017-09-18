@@ -12,16 +12,16 @@
 @class WFDataSourceSection;
 
 typedef void (^wf_CellConfigureBlock)(id cell, id item, NSIndexPath *indexPath);
-typedef UIView *(^wf_ViewForSectionBlock)(id sectionItem, NSInteger section);
+typedef UIView *(^wf_ViewForSectionBlock)(WFDataSourceSection *sectionItem, NSInteger section);
 typedef CGFloat (^wf_HeightForRowBlock)(id item, NSIndexPath *indexPath);
-typedef CGFloat (^wf_HeightForSectionBlock)(id sectionItem, NSInteger section);
+typedef CGFloat (^wf_HeightForSectionBlock)(WFDataSourceSection *sectionItem, NSInteger section);
 typedef void (^wf_OperationForRowBlock)(id item, NSIndexPath *indexPath);
 typedef BOOL (^wf_CanOperationRowBlock)(id item, NSIndexPath *indexPath);
 typedef void (^wf_CommitEditRowBlock)(id item, UITableViewCellEditingStyle editingStyle, NSIndexPath *indexPath);
 typedef UICollectionReusableView *(^wf_ReusebleViewBlock)(id sectionItem, NSString *kind, NSIndexPath *indexPath);
 typedef UICollectionViewFlowLayout *(^wf_FlowLayoutBlock)();
-typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
-typedef CGSize (^wf_FlowLayoutSizeBlock)(id sectionItem, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
+typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
+typedef CGSize (^wf_FlowLayoutSizeBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
 typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *sectionItem, NSInteger section);
 
 @protocol WFDataSourceCellConfig <NSObject>

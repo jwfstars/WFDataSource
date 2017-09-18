@@ -624,7 +624,7 @@
     if (self.collectionSectionInset) {
         return self.collectionSectionInset(section_item, section);
     }else if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] && self.collectionView.collectionViewLayout) {
-        UICollectionViewFlowLayout *flowLayout = self.collectionView.collectionViewLayout;
+        UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
         return flowLayout.sectionInset;
     }else {
         return UIEdgeInsetsZero;
