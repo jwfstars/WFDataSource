@@ -1098,7 +1098,8 @@
         self.messageLabel.frame = CGRectMake(0, 0, self.bounds.size.width * 0.7, 40);
         self.messageLabel.center = CGPointMake(CGRectGetMidX(self.placeHolderView.frame), CGRectGetMaxY(self.placeHolderView.frame) + 70);
     }
-    self.actionButton.frame = CGRectMake(CGRectGetMinX(self.messageLabel.frame), CGRectGetMaxY(self.messageLabel.frame) + 10, self.messageLabel.frame.size.width, 60);
+    self.actionButton.frame = CGRectMake(CGRectGetMinX(self.messageLabel.frame), CGRectGetMaxY(self.messageLabel.frame) + 10, self.item.actionButtonWidth?:self.messageLabel.frame.size.width, self.item.actionButtonHeight?:60);
+    self.actionButton.center = CGPointMake(CGRectGetMidX(self.messageLabel.frame), self.actionButton.center.y);
 }
 
 - (void)configCellWithItem:(WFDataSourceEmpty *)item
@@ -1127,7 +1128,9 @@
     }
     
     self.placeHolderView.image = [UIImage imageNamed:item.imageName?:self.emptyImageName];
-    
+
+    self.actionButton.backgroundColor = item.actionButtonBgColor;
+    [self.actionButton setTitleColor:item.actionButtonColor forState:UIControlStateNormal];
     [self.actionButton setTitle:item.actionTitle?:@"刷新重试" forState:UIControlStateNormal];
     
     [self setupCustomViewWithItem:item];

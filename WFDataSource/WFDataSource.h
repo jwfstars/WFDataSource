@@ -151,6 +151,9 @@ typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *secti
 
 @property (nonatomic, strong) UIColor *titleColor;
 @property (nonatomic, strong) UIColor *actionButtonColor;
+@property (nonatomic, strong) UIColor *actionButtonBgColor;
+@property (nonatomic, assign) CGFloat actionButtonWidth;
+@property (nonatomic, assign) CGFloat actionButtonHeight;
 @property (nonatomic, strong) UIColor *messageColor;
 @property (nonatomic, strong) UIView *customView;
 
