@@ -25,10 +25,9 @@ typedef CGSize (^wf_FlowLayoutSizeBlock)(WFDataSourceSection *sectionItem, UICol
 typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *sectionItem, NSInteger section);
 
 @protocol WFDataSourceCellConfig <NSObject>
-@required;
-- (void)configCellWithItem:(id)item;
-
 @optional;
+- (void)configWithItem:(id)item;
+- (void)configWithItem:(id)item indexPath:(NSIndexPath *)indexPath;
 - (void)setupCell;
 @end
 

@@ -14,7 +14,7 @@ A block based UITableView/UICollectionView data source
                                        
     //create a data source
     WFDataSource *dataSource = [[WFDataSource alloc] initWithModelCellMap:modelCellMap cellConfigBlock:^(id cell, id item, NSIndexPath *indexPath) {
-        [cell configCellWithItem:item];
+        [cell configWithItem:item];
     }];
     
     //on select cell
@@ -77,7 +77,7 @@ iOS界面开发中，每个控制器中重复度最高的代码，可能就是 T
                                        
     //create a data source
     WFDataSource *dataSource = [[WFDataSource alloc] initWithModelCellMap:modelCellMap cellConfigBlock:^(id cell, id item, NSIndexPath *indexPath) {
-        [cell configCellWithItem:item];
+        [cell configWithItem:item];
     }];
  
 在项目中往往会出现使用XIB创建的Cell和纯代码Cell混用的情形，而两者在通过 table view 的缓存池机制创建 cell 时的差异，可以通过下面两个方法进行统一。

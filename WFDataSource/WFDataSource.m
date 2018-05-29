@@ -347,7 +347,7 @@
         [tableViewCell setSeparatorInset:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
         [tableViewCell setLayoutMargins:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
         [tableViewCell setPreservesSuperviewLayoutMargins:NO];
-        [tableViewCell configCellWithItem:item];
+        [tableViewCell configWithItem:item];
         return tableViewCell;
     }else {
         self.cellConfigBlock(cell, item, indexPath);
@@ -961,7 +961,7 @@
     self.actionButton.center = CGPointMake(CGRectGetMidX(self.titleLable.frame), self.actionButton.center.y);
 }
 
-- (void)configCellWithItem:(WFDataSourceEmpty *)item
+- (void)configWithItem:(WFDataSourceEmpty *)item
 {
     _item = item;
     self.titleLable.text = item.title;
@@ -1109,7 +1109,7 @@
     self.actionButton.center = CGPointMake(CGRectGetMidX(self.messageLabel.frame), self.actionButton.center.y);
 }
 
-- (void)configCellWithItem:(WFDataSourceEmpty *)item
+- (void)configWithItem:(WFDataSourceEmpty *)item
 {
     _item = item;
     self.titleLable.text = item.title;
