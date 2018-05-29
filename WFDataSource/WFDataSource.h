@@ -164,6 +164,7 @@ typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *secti
 @property (nonatomic, strong) UIColor *titleColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor *messageColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor *actionButtonColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) UIColor *actionButtonBgColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic,   copy) NSString *emptyImageName UI_APPEARANCE_SELECTOR;
 @property (nonatomic,   copy) NSString *errorImageName UI_APPEARANCE_SELECTOR;
 @end
@@ -172,6 +173,7 @@ typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *secti
 @property (nonatomic, strong) UIColor *titleColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor *messageColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor *actionButtonColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) UIColor *actionButtonBgColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic,   copy) NSString *emptyImageName UI_APPEARANCE_SELECTOR;
 @property (nonatomic,   copy) NSString *errorImageName UI_APPEARANCE_SELECTOR;
 @end

@@ -882,7 +882,8 @@
     [super load];
     [WFDataSourceEmptyCell appearance].titleColor = [UIColor blackColor];
     [WFDataSourceEmptyCell appearance].messageColor = [UIColor colorWithRed:108.0/255.0 green:108.0/255.0 blue:108.0/255.0 alpha:1];
-    [WFDataSourceEmptyCell appearance].actionButtonColor = [UIColor blueColor];
+    [WFDataSourceEmptyCell appearance].actionButtonColor = [UIColor whiteColor];
+    [WFDataSourceEmptyCell appearance].actionButtonBgColor = [UIColor blueColor];
 }
 
 - (void)awakeFromNib {
@@ -927,7 +928,8 @@
         button.titleLabel.font = [UIFont systemFontOfSize:15];
         [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         button.backgroundColor = [WFDataSourceEmptyCell appearance].actionButtonColor;
-        button.layer.cornerRadius = 2;
+        button.layer.cornerRadius = 4;
+        button.layer.masksToBounds = YES;
         [button addTarget:self action:@selector(onTapAction:) forControlEvents:UIControlEventTouchUpInside];
         button;
     });
@@ -967,7 +969,8 @@
     self.actionButton.hidden = !item.actionTitle;
     
     [self.actionButton setTitle:item.actionTitle?:@"刷新重试" forState:UIControlStateNormal];
-    self.actionButton.backgroundColor = item.actionButtonColor?:[WFDataSourceEmptyCell appearance].actionButtonColor;
+    [self.actionButton setTitleColor:item.actionButtonColor?:[WFDataSourceEmptyCell appearance].actionButtonColor forState:UIControlStateNormal];
+    self.actionButton.backgroundColor = item.actionButtonBgColor?:[WFDataSourceEmptyCell appearance].actionButtonBgColor;
     
     if (item.titleColor) {
         self.titleLable.textColor = item.titleColor;
@@ -1027,7 +1030,8 @@
     [super load];
     [WFDataSourceEmptyCell appearance].titleColor = [UIColor blackColor];
     [WFDataSourceEmptyCell appearance].messageColor = [UIColor colorWithRed:108.0/255.0 green:108.0/255.0 blue:108.0/255.0 alpha:1];
-    [WFDataSourceEmptyCell appearance].actionButtonColor = [UIColor blueColor];
+    [WFDataSourceEmptyCell appearance].actionButtonColor = [UIColor whiteColor];
+    [WFDataSourceEmptyCell appearance].actionButtonBgColor = [UIColor blueColor];
 }
 
 - (void)awakeFromNib {
@@ -1070,7 +1074,10 @@
         UIButton *button = [UIButton new];
         [button setTitle:@"刷新重试" forState:UIControlStateNormal];
         button.titleLabel.font = [UIFont systemFontOfSize:15];
-        [button setTitleColor:[WFDataSourceEmptyCell appearance].actionButtonColor forState:UIControlStateNormal];
+        button.layer.cornerRadius = 4;
+        button.layer.masksToBounds = YES;
+        button.backgroundColor = [WFDataSourceEmptyCollectionCell appearance].actionButtonColor;
+        [button setTitleColor:[WFDataSourceEmptyCollectionCell appearance].actionButtonColor forState:UIControlStateNormal];
         [button addTarget:self action:@selector(onTapAction:) forControlEvents:UIControlEventTouchUpInside];
         button;
     });
