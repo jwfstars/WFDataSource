@@ -19,7 +19,7 @@ typedef void (^wf_OperationForRowBlock)(id item, NSIndexPath *indexPath);
 typedef BOOL (^wf_CanOperationRowBlock)(id item, NSIndexPath *indexPath);
 typedef void (^wf_CommitEditRowBlock)(id item, UITableViewCellEditingStyle editingStyle, NSIndexPath *indexPath);
 typedef UICollectionReusableView *(^wf_ReusebleViewBlock)(id sectionItem, NSString *kind, NSIndexPath *indexPath);
-typedef UICollectionViewFlowLayout *(^wf_FlowLayoutBlock)();
+typedef UICollectionViewFlowLayout *(^wf_FlowLayoutBlock)(void);
 typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
 typedef CGSize (^wf_FlowLayoutSizeBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
 typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *sectionItem, NSInteger section);

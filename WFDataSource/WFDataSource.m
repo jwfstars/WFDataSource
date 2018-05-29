@@ -16,7 +16,7 @@
 
 @property (nonatomic, strong) NSMutableDictionary *modelCellMap;
 
-@property (nonatomic,   copy) NSDictionary *(^customSectionProperties)();
+@property (nonatomic,   copy) NSDictionary *(^customSectionProperties)(void);
 
 @property (nonatomic, strong) NSMutableDictionary *heightAtIndexPath;
 @end
