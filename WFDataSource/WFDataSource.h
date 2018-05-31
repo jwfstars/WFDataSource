@@ -74,7 +74,7 @@ typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *secti
 
 @property (nonatomic,   weak) UICollectionView *collectionView;
 
-
+@property (nonatomic, strong) NSBundle *resourceBundle;
 
 //init
 - (instancetype)initWithModelCellMap:(NSDictionary *)map cellConfigBlock:(wf_CellConfigureBlock)block;

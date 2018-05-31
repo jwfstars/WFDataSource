@@ -790,12 +790,14 @@
     [self.modelCellMap addEntriesFromDictionary:empty];
     if (self.modelCellMap.count) {
         [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
-            NSString *nibPath = [[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
-            if ([[NSFileManager defaultManager] fileExistsAtPath:nibPath]) {
-                [tableView registerNib:[UINib nibWithNibName:cellClassString bundle:nil] forCellReuseIdentifier:cellClassString];
+            NSString *nibPath = [self.resourceBundle?:[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
+            if (nibPath && [[NSFileManager defaultManager] fileExistsAtPath:nibPath]) {
+                [tableView registerNib:[UINib nibWithNibName:cellClassString bundle:self.resourceBundle] forCellReuseIdentifier:cellClassString];
             }else {
                 Class cellClass = NSClassFromString(cellClassString);
-                [tableView registerClass:cellClass forCellReuseIdentifier:cellClassString];
+                if (cellClass) {
+                    [tableView registerClass:cellClass forCellReuseIdentifier:cellClassString];
+                }
             }
         }];
     }
@@ -811,12 +813,14 @@
     [self.modelCellMap addEntriesFromDictionary:empty];
     if (self.modelCellMap.count) {
         [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
-            NSString *nibPath = [[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
-            if ([[NSFileManager defaultManager] fileExistsAtPath:nibPath]) {
-                [collectionView registerNib:[UINib nibWithNibName:cellClassString bundle:nil] forCellWithReuseIdentifier:cellClassString];
+            NSString *nibPath = [self.resourceBundle?:[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
+            if (nibPath && [[NSFileManager defaultManager] fileExistsAtPath:nibPath]) {
+                [collectionView registerNib:[UINib nibWithNibName:cellClassString bundle:self.resourceBundle] forCellWithReuseIdentifier:cellClassString];
             }else {
                 Class cellClass = NSClassFromString(cellClassString);
-                [collectionView registerClass:cellClass forCellWithReuseIdentifier:cellClassString];
+                if (cellClass) {
+                    [collectionView registerClass:cellClass forCellWithReuseIdentifier:cellClassString];
+                }
             }
         }];
     }
