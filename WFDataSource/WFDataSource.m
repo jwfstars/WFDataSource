@@ -773,19 +773,18 @@
     NSDictionary *empty = @{@"WFDataSourceEmpty": @"WFDataSourceEmptyCell"};
     [self.modelCellMap addEntriesFromDictionary:empty];
     if (self.modelCellMap.count) {
-        [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
-            NSString *identifier = cellClassString;
-            if ([cellClassString containsString:@"-"]) {
-                cellClassString = [cellClassString componentsSeparatedByString:@"-"].firstObject;
-                identifier = [cellClassString componentsSeparatedByString:@"-"].lastObject;
-            }
-            NSString *nibPath = [self.resourceBundle?:[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
+        [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *obj, BOOL * _Nonnull stop) {
+            NSString *cellIdentifier;
+            NSString *cellClassName;
+            cellClassName = [obj componentsSeparatedByString:@"-"].firstObject;
+            cellIdentifier = [obj componentsSeparatedByString:@"-"].lastObject;
+            NSString *nibPath = [self.resourceBundle?:[NSBundle mainBundle] pathForResource:cellClassName ofType:@"nib"];
             if (nibPath && [[NSFileManager defaultManager] fileExistsAtPath:nibPath]) {
-                [tableView registerNib:[UINib nibWithNibName:cellClassString bundle:self.resourceBundle] forCellReuseIdentifier:identifier];
+                [tableView registerNib:[UINib nibWithNibName:cellClassName bundle:self.resourceBundle] forCellReuseIdentifier:cellIdentifier];
             }else {
-                Class cellClass = NSClassFromString(cellClassString);
+                Class cellClass = NSClassFromString(cellClassName);
                 if (cellClass) {
-                    [tableView registerClass:cellClass forCellReuseIdentifier:identifier];
+                    [tableView registerClass:cellClass forCellReuseIdentifier:cellIdentifier];
                 }
             }
         }];
@@ -801,19 +800,18 @@
     NSDictionary *empty = @{@"WFDataSourceEmpty": @"WFDataSourceEmptyCollectionCell"};
     [self.modelCellMap addEntriesFromDictionary:empty];
     if (self.modelCellMap.count) {
-        [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
-            NSString *identifier = cellClassString;
-            if ([cellClassString containsString:@"-"]) {
-                cellClassString = [cellClassString componentsSeparatedByString:@"-"].firstObject;
-                identifier = [cellClassString componentsSeparatedByString:@"-"].lastObject;
-            }
-            NSString *nibPath = [self.resourceBundle?:[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
+        [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *obj, BOOL * _Nonnull stop) {
+            NSString *cellIdentifier;
+            NSString *cellClassName;
+            cellClassName = [obj componentsSeparatedByString:@"-"].firstObject;
+            cellIdentifier = [obj componentsSeparatedByString:@"-"].lastObject;
+            NSString *nibPath = [self.resourceBundle?:[NSBundle mainBundle] pathForResource:cellClassName ofType:@"nib"];
             if (nibPath && [[NSFileManager defaultManager] fileExistsAtPath:nibPath]) {
-                [collectionView registerNib:[UINib nibWithNibName:cellClassString bundle:self.resourceBundle] forCellWithReuseIdentifier:identifier];
+                [collectionView registerNib:[UINib nibWithNibName:cellClassName bundle:self.resourceBundle] forCellWithReuseIdentifier:cellIdentifier];
             }else {
-                Class cellClass = NSClassFromString(cellClassString);
+                Class cellClass = NSClassFromString(cellClassName);
                 if (cellClass) {
-                    [collectionView registerClass:cellClass forCellWithReuseIdentifier:identifier];
+                    [collectionView registerClass:cellClass forCellWithReuseIdentifier:cellIdentifier];
                 }
             }
         }];
