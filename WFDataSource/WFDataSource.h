@@ -79,6 +79,7 @@ typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *secti
 //init
 - (instancetype)initWithModelCellMap:(NSDictionary *)map cellConfigBlock:(wf_CellConfigureBlock)block;
 
+- (void)addCellMapWithModel:(NSString *)modelName cell:(NSString *)cellName identifier:(NSString *)identifier;
 
 //Reload
 - (void)reloadWithItems:(NSArray *)items;

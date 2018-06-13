@@ -60,11 +60,10 @@
     return self;
 }
 
-
-
-
-
-
+- (void)addCellMapWithModel:(NSString *)modelName cell:(NSString *)cellName identifier:(NSString *)identifier
+{
+    [self.modelCellMap setObject:[NSString stringWithFormat:@"%@-%@",cellName, identifier] forKey:modelName];
+}
 
 
 #pragma mark - Reload
@@ -294,9 +293,15 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    return [self cellForListView:tableView indexPath:indexPath];
+}
+
+- (id)cellForListView:(UIView *)listView indexPath:(NSIndexPath *)indexPath
+{
     id item = [self itemAtIndexPath:indexPath];
     
     __block NSString *cellIdentifier;
+    __block NSString *cellClassName;
     if (self.modelCellMap.count) {
         if ([item isKindOfClass:[NSString class]] ||
             [item isKindOfClass:[NSDictionary class]]
@@ -304,18 +309,22 @@
             [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *obj, BOOL * _Nonnull stop) {
                 Class modelClass = NSClassFromString(key);
                 if ([item isKindOfClass:modelClass]) {
-                    cellIdentifier = obj;
+                    cellClassName = [obj componentsSeparatedByString:@"-"].firstObject;
+                    cellIdentifier = [obj componentsSeparatedByString:@"-"].lastObject;
                     *stop = YES;
                 }
             }];
         }else {
-            cellIdentifier = [self.modelCellMap objectForKey:NSStringFromClass([item class])];
+            NSString *value = [self.modelCellMap objectForKey:NSStringFromClass([item class])];
+            cellClassName = [value componentsSeparatedByString:@"-"].firstObject;
+            cellIdentifier = [value componentsSeparatedByString:@"-"].lastObject;
         }
         if (!cellIdentifier) {
             [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *obj, BOOL * _Nonnull stop) {
                 Class modelClass = NSClassFromString(key);
                 if ([item isKindOfClass:modelClass]) {
-                    cellIdentifier = obj;
+                    cellClassName = [obj componentsSeparatedByString:@"-"].firstObject;
+                    cellIdentifier = [obj componentsSeparatedByString:@"-"].lastObject;
                     *stop = YES;
                 }
             }];
@@ -327,20 +336,16 @@
     }else {
         cellIdentifier = @"UITableViewCell";
     }
-
-    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
-        [tableView registerClass:[WFDataSourceEmptyCell class] forCellReuseIdentifier:@"WFDataSourceEmptyCell"];
-    }
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
-    if (!cell) {
-        Class cellClass = NSClassFromString(cellIdentifier);
-        cell = [[cellClass alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
-        if (!cell) {
-            @throw [NSException exceptionWithName:@"cellIdentifier 异常" reason:cellIdentifier userInfo:self.modelCellMap];
+    id cell;
+    if ([listView isKindOfClass:[UITableView class]]) {
+        if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
+            [(UITableView *)listView registerClass:[WFDataSourceEmptyCell class] forCellReuseIdentifier:@"WFDataSourceEmptyCell"];
         }
+        cell = [(UITableView *)listView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
+    }else {
+        cell = [(UICollectionView *)listView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     }
-    
     if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
         WFDataSourceEmptyCell *tableViewCell = (WFDataSourceEmptyCell *)cell;
         tableViewCell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -509,28 +514,7 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id item = [self itemAtIndexPath:indexPath];
-    __block NSString *cellIdentifier;
-    if (self.modelCellMap.count) {
-        [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *obj, BOOL * _Nonnull stop) {
-            Class modelClass = NSClassFromString(key);
-            if ([item isKindOfClass:modelClass]) {
-                cellIdentifier = obj;
-                *stop = YES;
-            }
-        }];
-        
-        if (!cellIdentifier) {
-            NSString *classString = NSStringFromClass([item class]);
-            @throw [NSException exceptionWithName:@"cellIdentifier 异常" reason:classString userInfo:self.modelCellMap];
-        }
-    }else {
-        cellIdentifier = @"UICollectionViewCell";
-    }
-    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
-    
-    self.cellConfigBlock(cell, item, indexPath);
-    return cell;
+    return [self cellForListView:collectionView indexPath:indexPath];
 }
 
 
@@ -790,13 +774,18 @@
     [self.modelCellMap addEntriesFromDictionary:empty];
     if (self.modelCellMap.count) {
         [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
+            NSString *identifier = cellClassString;
+            if ([cellClassString containsString:@"-"]) {
+                cellClassString = [cellClassString componentsSeparatedByString:@"-"].firstObject;
+                identifier = [cellClassString componentsSeparatedByString:@"-"].lastObject;
+            }
             NSString *nibPath = [self.resourceBundle?:[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
             if (nibPath && [[NSFileManager defaultManager] fileExistsAtPath:nibPath]) {
-                [tableView registerNib:[UINib nibWithNibName:cellClassString bundle:self.resourceBundle] forCellReuseIdentifier:cellClassString];
+                [tableView registerNib:[UINib nibWithNibName:cellClassString bundle:self.resourceBundle] forCellReuseIdentifier:identifier];
             }else {
                 Class cellClass = NSClassFromString(cellClassString);
                 if (cellClass) {
-                    [tableView registerClass:cellClass forCellReuseIdentifier:cellClassString];
+                    [tableView registerClass:cellClass forCellReuseIdentifier:identifier];
                 }
             }
         }];
@@ -813,13 +802,18 @@
     [self.modelCellMap addEntriesFromDictionary:empty];
     if (self.modelCellMap.count) {
         [self.modelCellMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSString *cellClassString, BOOL * _Nonnull stop) {
+            NSString *identifier = cellClassString;
+            if ([cellClassString containsString:@"-"]) {
+                cellClassString = [cellClassString componentsSeparatedByString:@"-"].firstObject;
+                identifier = [cellClassString componentsSeparatedByString:@"-"].lastObject;
+            }
             NSString *nibPath = [self.resourceBundle?:[NSBundle mainBundle] pathForResource:cellClassString ofType:@"nib"];
             if (nibPath && [[NSFileManager defaultManager] fileExistsAtPath:nibPath]) {
-                [collectionView registerNib:[UINib nibWithNibName:cellClassString bundle:self.resourceBundle] forCellWithReuseIdentifier:cellClassString];
+                [collectionView registerNib:[UINib nibWithNibName:cellClassString bundle:self.resourceBundle] forCellWithReuseIdentifier:identifier];
             }else {
                 Class cellClass = NSClassFromString(cellClassString);
                 if (cellClass) {
-                    [collectionView registerClass:cellClass forCellWithReuseIdentifier:cellClassString];
+                    [collectionView registerClass:cellClass forCellWithReuseIdentifier:identifier];
                 }
             }
         }];
