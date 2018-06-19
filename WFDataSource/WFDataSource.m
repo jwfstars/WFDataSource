@@ -747,7 +747,7 @@
     if (self.sectionItems.count) {
         id sectionItem = [self.sectionItems objectAtIndex:indexPath.section];
         NSMutableArray *sectionSubArray = [sectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
-        if (sectionSubArray.count) {
+        if (indexPath.row < sectionSubArray.count) {
             return sectionSubArray[indexPath.row];
         }else {
             return nil;
