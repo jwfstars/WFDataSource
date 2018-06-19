@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = 'WFDataSource'
   s.summary      = 'A block based tableview/collectionview datasource.'
-  s.version      = '0.1.4'
+  s.version      = '0.1.5'
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
   s.authors      =  {'Jiang Wenfan' => 'jwfstars@163.com' }
   s.homepage     = 'https://github.com/jwfstars/WFDataSource'
