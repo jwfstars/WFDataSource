@@ -347,13 +347,21 @@
         cell = [(UICollectionView *)listView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     }
     if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
-        WFDataSourceEmptyCell *tableViewCell = (WFDataSourceEmptyCell *)cell;
-        tableViewCell.selectionStyle = UITableViewCellSelectionStyleNone;
-        [tableViewCell setSeparatorInset:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
-        [tableViewCell setLayoutMargins:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
-        [tableViewCell setPreservesSuperviewLayoutMargins:NO];
-        [tableViewCell configWithItem:item];
-        return tableViewCell;
+        if ([listView isKindOfClass:[UITableView class]]) {
+            WFDataSourceEmptyCell *tableViewCell = (WFDataSourceEmptyCell *)cell;
+            tableViewCell.selectionStyle = UITableViewCellSelectionStyleNone;
+            [tableViewCell setSeparatorInset:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
+            [tableViewCell setLayoutMargins:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
+            [tableViewCell setPreservesSuperviewLayoutMargins:NO];
+            [tableViewCell configWithItem:item];
+            return tableViewCell;
+        }else {
+            WFDataSourceEmptyCollectionCell *collectionCell = (WFDataSourceEmptyCollectionCell *)cell;
+            [collectionCell setLayoutMargins:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
+            [collectionCell setPreservesSuperviewLayoutMargins:NO];
+            [collectionCell configWithItem:item];
+            return collectionCell;
+        }
     }else {
         self.cellConfigBlock(cell, item, indexPath);
         return cell;
@@ -426,7 +434,9 @@
 - (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath {
     if (self.didEndDisplayCellBlock) {
         id item = [self itemAtIndexPath:indexPath];
-        self.didEndDisplayCellBlock(cell, item, indexPath);
+        if (item) {
+            self.didEndDisplayCellBlock(cell, item, indexPath);
+        }
     }
 }
 
@@ -578,7 +588,9 @@
 {
     if (self.didEndDisplayCellBlock) {
         id item = [self itemAtIndexPath:indexPath];
-        self.didEndDisplayCellBlock(cell, item, indexPath);
+        if (item) {
+            self.didEndDisplayCellBlock(cell, item, indexPath);
+        }
     }
 }
 
@@ -735,7 +747,11 @@
     if (self.sectionItems.count) {
         id sectionItem = [self.sectionItems objectAtIndex:indexPath.section];
         NSMutableArray *sectionSubArray = [sectionItem valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]];
-        return sectionSubArray[indexPath.row];
+        if (sectionSubArray.count) {
+            return sectionSubArray[indexPath.row];
+        }else {
+            return nil;
+        }
     }else {
         return nil;
     }
