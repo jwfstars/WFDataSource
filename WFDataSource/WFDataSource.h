@@ -21,8 +21,8 @@ typedef void (^wf_CommitEditRowBlock)(id item, UITableViewCellEditingStyle editi
 typedef UICollectionReusableView *(^wf_ReusebleViewBlock)(id sectionItem, NSString *kind, NSIndexPath *indexPath);
 typedef UICollectionViewFlowLayout *(^wf_FlowLayoutBlock)(void);
 typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
-typedef CGSize (^wf_FlowLayoutSizeBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
-typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(WFDataSourceSection *sectionItem, NSInteger section);
+typedef CGSize (^wf_FlowLayoutSizeBlock)(id item, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
+typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(id item, NSInteger section);
 
 @protocol WFDataSourceCellConfig <NSObject>
 @optional;

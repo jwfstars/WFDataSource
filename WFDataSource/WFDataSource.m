@@ -595,7 +595,6 @@
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout
-
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     id item = [self itemAtIndexPath:indexPath];
     if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
