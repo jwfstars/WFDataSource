@@ -768,7 +768,14 @@
 
 - (NSArray *)items
 {
-    return [[_sectionItems.firstObject valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] copy];
+    NSMutableArray *arrayM = [NSMutableArray array];
+    [_sectionItems enumerateObjectsUsingBlock:^(WFDataSourceSection * _Nonnull section, NSUInteger idx, BOOL * _Nonnull stop) {
+        [section.sectionItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [arrayM addObject:obj];
+        }];
+    }];
+    return arrayM;
+//    return [[_sectionItems.firstObject valueForKey:[self sectionPropertiesMap][SECTION_SUBARRAY_NAME]] copy];
 }
 
 - (NSMutableArray *)sectionItems
