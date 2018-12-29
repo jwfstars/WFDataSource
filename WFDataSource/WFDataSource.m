@@ -374,7 +374,7 @@
 {
     id item = [self itemAtIndexPath:indexPath];
     if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
-        return self.tableView.bounds.size.height - [item cellInsetTop];// - self.tableView.contentInset.top;
+        return self.tableView.bounds.size.height - [item cellInsetTop] - self.tableView.tableHeaderView.frame.size.height;
     }else {
         if (self.heightForRow) {
             return self.heightForRow(item, indexPath);
@@ -617,12 +617,36 @@
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
     WFDataSourceSection *section_item = self.sectionItems[section];
     if (self.collectionSectionInset) {
-        return self.collectionSectionInset(section_item, section);
+        return self.collectionSectionInset(section_item, collectionViewLayout, section);
     }else if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] && self.collectionView.collectionViewLayout) {
         UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
         return flowLayout.sectionInset;
     }else {
         return UIEdgeInsetsZero;
+    }
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    WFDataSourceSection *section_item = self.sectionItems[section];
+    if (self.collectionViewMinimumLineSpacing) {
+        return self.collectionViewMinimumLineSpacing(section_item, collectionViewLayout, section);
+    }else if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] && self.collectionView.collectionViewLayout) {
+        UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+        return flowLayout.minimumLineSpacing;
+    }else {
+        return 0;
+    }
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    WFDataSourceSection *section_item = self.sectionItems[section];
+    if (self.collectionViewMinimumInteritemSpacing) {
+        return self.collectionViewMinimumInteritemSpacing(section_item, collectionViewLayout, section);
+    }else if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] && self.collectionView.collectionViewLayout) {
+        UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
+        return flowLayout.minimumInteritemSpacing;
+    }else {
+        return 0;
     }
 }
 

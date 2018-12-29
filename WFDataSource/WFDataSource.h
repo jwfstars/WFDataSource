@@ -20,9 +20,12 @@ typedef BOOL (^wf_CanOperationRowBlock)(id item, NSIndexPath *indexPath);
 typedef void (^wf_CommitEditRowBlock)(id item, UITableViewCellEditingStyle editingStyle, NSIndexPath *indexPath);
 typedef UICollectionReusableView *(^wf_ReusebleViewBlock)(id sectionItem, NSString *kind, NSIndexPath *indexPath);
 typedef UICollectionViewFlowLayout *(^wf_FlowLayoutBlock)(void);
-typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
+
 typedef CGSize (^wf_FlowLayoutSizeBlock)(id item, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
-typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(id item, NSInteger section);
+
+typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
+typedef UIEdgeInsets(^wf_FlowLayoutSectionBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
+typedef CGFloat (^wf_FlowLayoutSectionSpacingBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
 
 @protocol WFDataSourceCellConfig <NSObject>
 @optional;
@@ -53,9 +56,11 @@ typedef UIEdgeInsets(^wf_FlowLayoutSectionInsetBlock)(id item, NSInteger section
 @property (nonatomic, strong) wf_ReusebleViewBlock reusableViewForSection;
 @property (nonatomic,   copy) wf_FlowLayoutBlock collectionViewLayout;
 @property (nonatomic,   copy) wf_FlowLayoutSizeBlock collectionViewLayoutSize;
+@property (nonatomic,   copy) wf_FlowLayoutSectionSpacingBlock collectionViewMinimumLineSpacing;
+@property (nonatomic,   copy) wf_FlowLayoutSectionSpacingBlock collectionViewMinimumInteritemSpacing;
 @property (nonatomic,   copy) wf_FlowLayoutSectionSizeBlock collectionViewFooterSize;
 @property (nonatomic,   copy) wf_FlowLayoutSectionSizeBlock collectionViewHeaderSize;
-@property (nonatomic, strong) wf_FlowLayoutSectionInsetBlock collectionSectionInset;
+@property (nonatomic, strong) wf_FlowLayoutSectionBlock collectionSectionInset;
 
 @property (nonatomic,   copy) void(^didScrollBlock)(UIScrollView *scrollView);
 @property (nonatomic,   copy) void(^willBeginDraggingBlock)(UIScrollView *scrollView);
