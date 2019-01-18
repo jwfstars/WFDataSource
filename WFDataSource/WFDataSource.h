@@ -32,6 +32,7 @@ typedef CGFloat (^wf_FlowLayoutSectionSpacingBlock)(WFDataSourceSection *section
 - (void)configWithItem:(id)item;
 - (void)configWithItem:(id)item indexPath:(NSIndexPath *)indexPath;
 - (void)setupCell;
+- (void)configView;
 @end
 
 @class WFDataSourceEmpty;
