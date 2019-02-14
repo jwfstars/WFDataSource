@@ -293,12 +293,52 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return [self cellForListView:tableView indexPath:indexPath];
+    return [self _cellForListView:tableView indexPath:indexPath];
 }
 
-- (id)cellForListView:(UIView *)listView indexPath:(NSIndexPath *)indexPath
+- (id)_cellForListView:(UIView *)listView indexPath:(NSIndexPath *)indexPath
 {
     id item = [self itemAtIndexPath:indexPath];
+    
+    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
+        id cell = [self createCellForListView:listView item:item indexPath:indexPath];
+        return [self _configEmptyCell:cell item:item listView:listView];
+    }else {
+        if (self.listCellForRowBlock) {
+            return self.listCellForRowBlock(listView, item, indexPath);
+        } else {
+            id cell = [self createCellForListView:listView item:item indexPath:indexPath];
+            self.cellConfigBlock(cell, item, indexPath);
+            return cell;
+        }
+    }
+}
+
+- (id)_configEmptyCell:(id)cell item:(id)item listView:(id)listView {
+    if ([listView isKindOfClass:[UITableView class]]) {
+        if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
+            [(UITableView *)listView registerClass:[WFDataSourceEmptyCell class] forCellReuseIdentifier:@"WFDataSourceEmptyCell"];
+        }
+    }
+    
+    if ([listView isKindOfClass:[UITableView class]]) {
+        WFDataSourceEmptyCell *tableViewCell = (WFDataSourceEmptyCell *)cell;
+        tableViewCell.selectionStyle = UITableViewCellSelectionStyleNone;
+        [tableViewCell setSeparatorInset:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
+        [tableViewCell setLayoutMargins:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
+        [tableViewCell setPreservesSuperviewLayoutMargins:NO];
+        [tableViewCell configWithItem:item];
+        return tableViewCell;
+    }else {
+        WFDataSourceEmptyCollectionCell *collectionCell = (WFDataSourceEmptyCollectionCell *)cell;
+        [collectionCell setLayoutMargins:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
+        [collectionCell setPreservesSuperviewLayoutMargins:NO];
+        [collectionCell configWithItem:item];
+        return collectionCell;
+    }
+}
+
+- (id)createCellForListView:(id)listView item:(id)item indexPath:(NSIndexPath *)indexPath {
     
     __block NSString *cellIdentifier;
     __block NSString *cellClassName;
@@ -339,33 +379,11 @@
     
     id cell;
     if ([listView isKindOfClass:[UITableView class]]) {
-        if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
-            [(UITableView *)listView registerClass:[WFDataSourceEmptyCell class] forCellReuseIdentifier:@"WFDataSourceEmptyCell"];
-        }
         cell = [(UITableView *)listView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
     }else {
         cell = [(UICollectionView *)listView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     }
-    if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
-        if ([listView isKindOfClass:[UITableView class]]) {
-            WFDataSourceEmptyCell *tableViewCell = (WFDataSourceEmptyCell *)cell;
-            tableViewCell.selectionStyle = UITableViewCellSelectionStyleNone;
-            [tableViewCell setSeparatorInset:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
-            [tableViewCell setLayoutMargins:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
-            [tableViewCell setPreservesSuperviewLayoutMargins:NO];
-            [tableViewCell configWithItem:item];
-            return tableViewCell;
-        }else {
-            WFDataSourceEmptyCollectionCell *collectionCell = (WFDataSourceEmptyCollectionCell *)cell;
-            [collectionCell setLayoutMargins:UIEdgeInsetsMake(0, _tableView.frame.size.width, 0, 0)];
-            [collectionCell setPreservesSuperviewLayoutMargins:NO];
-            [collectionCell configWithItem:item];
-            return collectionCell;
-        }
-    }else {
-        self.cellConfigBlock(cell, item, indexPath);
-        return cell;
-    }
+    return cell;
 }
 
 #pragma mark  UITableView Height
@@ -524,7 +542,7 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return [self cellForListView:collectionView indexPath:indexPath];
+    return [self _cellForListView:collectionView indexPath:indexPath];
 }
 
 

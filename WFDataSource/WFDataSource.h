@@ -38,6 +38,7 @@ typedef CGFloat (^wf_FlowLayoutSectionSpacingBlock)(WFDataSourceSection *section
 @class WFDataSourceEmpty;
 
 @interface WFDataSource : NSObject
+@property (nonatomic,   copy) id(^listCellForRowBlock)(id listView, id item, NSIndexPath *indexPath);
 @property (nonatomic,   copy) wf_CellConfigureBlock cellConfigBlock;
 @property (nonatomic,   copy) wf_OperationForRowBlock didSelectCellBlock;
 @property (nonatomic,   copy) wf_ViewForSectionBlock headerViewForSection;
@@ -86,6 +87,8 @@ typedef CGFloat (^wf_FlowLayoutSectionSpacingBlock)(WFDataSourceSection *section
 - (instancetype)initWithModelCellMap:(NSDictionary *)map cellConfigBlock:(wf_CellConfigureBlock)block;
 
 - (void)addCellMapWithModel:(NSString *)modelName cell:(NSString *)cellName identifier:(NSString *)identifier;
+
+- (id)createCellForListView:(id)listView item:(id)item indexPath:(NSIndexPath *)indexPath;
 
 //Reload
 - (void)reloadWithItems:(NSArray *)items;
