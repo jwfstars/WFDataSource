@@ -173,11 +173,23 @@
         NSIndexPath *indexPathToAdd = [NSIndexPath indexPathForItem:indexPath.item + idx inSection:indexPath.section];
         [indexPaths addObject:indexPathToAdd];
     }];
-    [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+    if (self.tableView) {
+        if (@available(iOS 11.0, *)) {
+            [self.tableView performBatchUpdates:^{
+                [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+            } completion:nil];
+        } else {
+            [self.tableView beginUpdates];
+            [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+            [self.tableView endUpdates];
+        }
+    }
     
-    [self.collectionView performBatchUpdates:^{
-        [self.collectionView insertItemsAtIndexPaths:indexPaths];
-    } completion:nil];
+    if (self.collectionView) {
+        [self.collectionView performBatchUpdates:^{
+            [self.collectionView insertItemsAtIndexPaths:indexPaths];
+        } completion:nil];
+    }
 }
 
 - (void)addNewSectionItems:(NSArray *)newSectionItems
@@ -370,7 +382,7 @@
             }];
             if (!cellIdentifier) {
                 NSString *classString = NSStringFromClass([item class]);
-                @throw [NSException exceptionWithName:@"cellIdentifier 异常" reason:classString userInfo:self.modelCellMap];
+                @throw [NSException exceptionWithName:@"cellIdentifier 异常" reason:[NSString stringWithFormat:@"%@ %@", classString, self.modelCellMap] userInfo:nil];
             }
         }
     }else {
@@ -942,7 +954,7 @@
     [super load];
     [WFDataSourceEmptyCell appearance].titleColor = [UIColor blackColor];
     [WFDataSourceEmptyCell appearance].messageColor = [UIColor colorWithRed:108.0/255.0 green:108.0/255.0 blue:108.0/255.0 alpha:1];
-    [WFDataSourceEmptyCell appearance].actionButtonColor = [UIColor whiteColor];
+    [WFDataSourceEmptyCell appearance].actionButtonTitleColor = [UIColor whiteColor];
     [WFDataSourceEmptyCell appearance].actionButtonBgColor = [UIColor blueColor];
 }
 
@@ -987,7 +999,7 @@
         [button setTitle:@"刷新重试" forState:UIControlStateNormal];
         button.titleLabel.font = [UIFont systemFontOfSize:15];
         [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        button.backgroundColor = [WFDataSourceEmptyCell appearance].actionButtonColor;
+        button.backgroundColor = [WFDataSourceEmptyCell appearance].actionButtonTitleColor;
         button.layer.cornerRadius = 4;
         button.layer.masksToBounds = YES;
         [button addTarget:self action:@selector(onTapAction:) forControlEvents:UIControlEventTouchUpInside];
@@ -1015,10 +1027,10 @@
         self.messageLabel.center = CGPointMake(CGRectGetMidX(self.titleLable.frame), self.messageLabel.center.y);
     }else {
         self.messageLabel.frame = CGRectMake(0, 0, self.bounds.size.width * 0.7, 40);
-        self.messageLabel.center = CGPointMake(CGRectGetMidX(self.placeHolderView.frame), CGRectGetMaxY(self.placeHolderView.frame) + 70);
+        self.messageLabel.center = CGPointMake(CGRectGetMidX(self.placeHolderView.frame), CGRectGetMaxY(self.placeHolderView.frame) + 30);
     }
-    self.actionButton.frame = CGRectMake(CGRectGetMinX(self.messageLabel.frame), CGRectGetMaxY(self.messageLabel.frame) + 10, 80, 40);
-    self.actionButton.center = CGPointMake(CGRectGetMidX(self.titleLable.frame), self.actionButton.center.y);
+    self.actionButton.frame = CGRectMake(0, CGRectGetMaxY(self.messageLabel.frame) + 10, self.item.actionButtonWidth?:self.messageLabel.frame.size.width, self.item.actionButtonHeight?:60);
+    self.actionButton.center = CGPointMake(CGRectGetMidX(self.messageLabel.frame), self.actionButton.center.y);
 }
 
 - (void)configWithItem:(WFDataSourceEmpty *)item
@@ -1029,7 +1041,7 @@
     self.actionButton.hidden = !item.actionTitle;
     
     [self.actionButton setTitle:item.actionTitle?:@"刷新重试" forState:UIControlStateNormal];
-    [self.actionButton setTitleColor:item.actionButtonColor?:[WFDataSourceEmptyCell appearance].actionButtonColor forState:UIControlStateNormal];
+    [self.actionButton setTitleColor:item.actionButtonTitleColor?:[WFDataSourceEmptyCell appearance].actionButtonTitleColor forState:UIControlStateNormal];
     self.actionButton.backgroundColor = item.actionButtonBgColor?:[WFDataSourceEmptyCell appearance].actionButtonBgColor;
     
     if (item.titleColor) {
@@ -1090,7 +1102,7 @@
     [super load];
     [WFDataSourceEmptyCell appearance].titleColor = [UIColor blackColor];
     [WFDataSourceEmptyCell appearance].messageColor = [UIColor colorWithRed:108.0/255.0 green:108.0/255.0 blue:108.0/255.0 alpha:1];
-    [WFDataSourceEmptyCell appearance].actionButtonColor = [UIColor whiteColor];
+    [WFDataSourceEmptyCell appearance].actionButtonTitleColor = [UIColor whiteColor];
     [WFDataSourceEmptyCell appearance].actionButtonBgColor = [UIColor blueColor];
 }
 
@@ -1136,8 +1148,8 @@
         button.titleLabel.font = [UIFont systemFontOfSize:15];
         button.layer.cornerRadius = 4;
         button.layer.masksToBounds = YES;
-        button.backgroundColor = [WFDataSourceEmptyCollectionCell appearance].actionButtonColor;
-        [button setTitleColor:[WFDataSourceEmptyCollectionCell appearance].actionButtonColor forState:UIControlStateNormal];
+        button.backgroundColor = [WFDataSourceEmptyCollectionCell appearance].actionButtonTitleColor;
+        [button setTitleColor:[WFDataSourceEmptyCollectionCell appearance].actionButtonTitleColor forState:UIControlStateNormal];
         [button addTarget:self action:@selector(onTapAction:) forControlEvents:UIControlEventTouchUpInside];
         button;
     });
@@ -1163,9 +1175,9 @@
         self.messageLabel.center = CGPointMake(CGRectGetMidX(self.titleLable.frame), self.messageLabel.center.y);
     }else {
         self.messageLabel.frame = CGRectMake(0, 0, self.bounds.size.width * 0.7, 40);
-        self.messageLabel.center = CGPointMake(CGRectGetMidX(self.placeHolderView.frame), CGRectGetMaxY(self.placeHolderView.frame) + 70);
+        self.messageLabel.center = CGPointMake(CGRectGetMidX(self.placeHolderView.frame), CGRectGetMaxY(self.placeHolderView.frame) + 30);
     }
-    self.actionButton.frame = CGRectMake(CGRectGetMinX(self.messageLabel.frame), CGRectGetMaxY(self.messageLabel.frame) + 10, self.item.actionButtonWidth?:self.messageLabel.frame.size.width, self.item.actionButtonHeight?:60);
+    self.actionButton.frame = CGRectMake(0, CGRectGetMaxY(self.messageLabel.frame) + 10, self.item.actionButtonWidth?:self.messageLabel.frame.size.width, self.item.actionButtonHeight?:60);
     self.actionButton.center = CGPointMake(CGRectGetMidX(self.messageLabel.frame), self.actionButton.center.y);
 }
 
@@ -1197,7 +1209,7 @@
     self.placeHolderView.image = [UIImage imageNamed:item.imageName?:self.emptyImageName];
 
     self.actionButton.backgroundColor = item.actionButtonBgColor;
-    [self.actionButton setTitleColor:item.actionButtonColor forState:UIControlStateNormal];
+    [self.actionButton setTitleColor:item.actionButtonTitleColor forState:UIControlStateNormal];
     [self.actionButton setTitle:item.actionTitle?:@"刷新重试" forState:UIControlStateNormal];
     
     [self setupCustomViewWithItem:item];

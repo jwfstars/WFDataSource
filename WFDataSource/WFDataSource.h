@@ -159,7 +159,7 @@ typedef CGFloat (^wf_FlowLayoutSectionSpacingBlock)(WFDataSourceSection *section
 @property (nonatomic,   copy) NSString *actionTitle;
 
 @property (nonatomic, strong) UIColor *titleColor;
-@property (nonatomic, strong) UIColor *actionButtonColor;
+@property (nonatomic, strong) UIColor *actionButtonTitleColor;
 @property (nonatomic, strong) UIColor *actionButtonBgColor;
 @property (nonatomic, assign) CGFloat actionButtonWidth;
 @property (nonatomic, assign) CGFloat actionButtonHeight;
@@ -172,7 +172,7 @@ typedef CGFloat (^wf_FlowLayoutSectionSpacingBlock)(WFDataSourceSection *section
 @interface WFDataSourceEmptyCell : UITableViewCell <WFDataSourceCellConfig>
 @property (nonatomic, strong) UIColor *titleColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor *messageColor UI_APPEARANCE_SELECTOR;
-@property (nonatomic, strong) UIColor *actionButtonColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) UIColor *actionButtonTitleColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor *actionButtonBgColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic,   copy) NSString *emptyImageName UI_APPEARANCE_SELECTOR;
 @property (nonatomic,   copy) NSString *errorImageName UI_APPEARANCE_SELECTOR;
@@ -181,7 +181,7 @@ typedef CGFloat (^wf_FlowLayoutSectionSpacingBlock)(WFDataSourceSection *section
 @interface WFDataSourceEmptyCollectionCell : UICollectionViewCell <WFDataSourceCellConfig>
 @property (nonatomic, strong) UIColor *titleColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor *messageColor UI_APPEARANCE_SELECTOR;
-@property (nonatomic, strong) UIColor *actionButtonColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) UIColor *actionButtonTitleColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor *actionButtonBgColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic,   copy) NSString *emptyImageName UI_APPEARANCE_SELECTOR;
 @property (nonatomic,   copy) NSString *errorImageName UI_APPEARANCE_SELECTOR;
