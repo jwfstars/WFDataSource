@@ -22,7 +22,7 @@ typedef UICollectionReusableView *(^wf_ReusebleViewBlock)(id sectionItem, NSStri
 typedef UICollectionViewFlowLayout *(^wf_FlowLayoutBlock)(void);
 
 typedef CGSize (^wf_FlowLayoutSizeBlock)(id item, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
-
+typedef CGSize (^wf_FlowLayoutSizeWithSectionBlock)(id item, WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSIndexPath *indexPath);
 typedef CGSize (^wf_FlowLayoutSectionSizeBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
 typedef UIEdgeInsets(^wf_FlowLayoutSectionBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
 typedef CGFloat (^wf_FlowLayoutSectionSpacingBlock)(WFDataSourceSection *sectionItem, UICollectionViewLayout *collectionViewLayout, NSInteger section);
@@ -58,6 +58,7 @@ typedef CGFloat (^wf_FlowLayoutSectionSpacingBlock)(WFDataSourceSection *section
 @property (nonatomic, strong) wf_ReusebleViewBlock reusableViewForSection;
 @property (nonatomic,   copy) wf_FlowLayoutBlock collectionViewLayout;
 @property (nonatomic,   copy) wf_FlowLayoutSizeBlock collectionViewLayoutSize;
+@property (nonatomic,   copy) wf_FlowLayoutSizeWithSectionBlock collectionViewLayoutSizeWithSection;
 @property (nonatomic,   copy) wf_FlowLayoutSectionSpacingBlock collectionViewMinimumLineSpacing;
 @property (nonatomic,   copy) wf_FlowLayoutSectionSpacingBlock collectionViewMinimumInteritemSpacing;
 @property (nonatomic,   copy) wf_FlowLayoutSectionSizeBlock collectionViewFooterSize;

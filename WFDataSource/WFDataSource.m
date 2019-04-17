@@ -630,7 +630,10 @@
     if ([item isKindOfClass:[WFDataSourceEmpty class]]) {
         return self.collectionView.bounds.size;
     }else {
-        if (self.collectionViewLayoutSize) {
+        if (self.collectionViewLayoutSizeWithSection) {
+            WFDataSourceSection *section_item = self.sectionItems[indexPath.section];
+            return self.collectionViewLayoutSizeWithSection(item, section_item, collectionViewLayout, indexPath);
+        }else if (self.collectionViewLayoutSize) {
             return self.collectionViewLayoutSize(item, collectionViewLayout, indexPath);
         }else if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]] && self.collectionView.collectionViewLayout) {
             return ((UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout).itemSize;
